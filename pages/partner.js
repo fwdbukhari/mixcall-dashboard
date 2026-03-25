@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import ThemeToggle from '../components/ThemeToggle';
 import {
   calculateSummary, calculateYearlySummary,
   formatUSD, formatPKR,
@@ -270,6 +271,7 @@ export default function PartnerDashboard() {
               <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-blue-300 text-xs font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>Partner · 25%
               </span>
+              <ThemeToggle />
               <button onClick={logout} className="px-3 py-1.5 text-slate-400 hover:text-white text-sm transition-colors">Sign Out</button>
             </div>
           </div>

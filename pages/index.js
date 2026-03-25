@@ -1,12 +1,20 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useTheme } from '../lib/useTheme';
+
+const THEME_OPTIONS = [
+  { value: 'dark',   icon: '🌙', label: 'Dark'   },
+  { value: 'light',  icon: '☀️',  label: 'Light'  },
+  { value: 'system', icon: '💻', label: 'System' },
+];
 
 export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { theme, changeTheme } = useTheme();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,8 +42,27 @@ export default function Login() {
     <>
       <Head><title>MixCall Dashboard — Login</title></Head>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-violet-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-sm">
 
+        {/* Theme switcher — top right */}
+        <div className="absolute top-4 right-4 flex items-center gap-1 bg-slate-800/70 border border-slate-700/50 rounded-xl p-1">
+          {THEME_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => changeTheme(opt.value)}
+              title={opt.label}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                theme === opt.value
+                  ? 'bg-violet-600 text-white'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/60'
+              }`}
+            >
+              <span>{opt.icon}</span>
+              <span className="hidden sm:inline">{opt.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="w-full max-w-sm">
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500 to-violet-700 mb-4 shadow-2xl shadow-violet-500/40">
@@ -73,7 +100,6 @@ export default function Login() {
             </form>
             <p className="text-slate-600 text-xs text-center mt-5">Confidential • MixCall Rev Dashboard v1.0</p>
           </div>
-
         </div>
       </div>
     </>
