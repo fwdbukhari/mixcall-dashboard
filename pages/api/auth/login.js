@@ -1,23 +1,62 @@
+/**
+ * Login API
+ * 
+ * Supports:
+ *  - Admin:   ADMIN_PASSWORD env var
+ *  - Viewers: ZAHID_PASSWORD, PARTNER_PASSWORD (legacy)
+ *             VIEWER_USERS env var for multiple viewers
+ *             Format: "Name1:Password1,Name2:Password2"
+ *             Example: "Zahid:Zahid@25pct,John:John@123"
+ */
+
+function getViewers() {
+  const viewers = [];
+
+  // Legacy single partner support
+  const legacy = process.env.PARTNER_PASSWORD || process.env.ZAHID_PASSWORD;
+  if (legacy) viewers.push({ name: 'partner', password: legacy });
+
+  // Multi-viewer support via VIEWER_USERS
+  const raw = process.env.VIEWER_USERS || '';
+  if (raw) {
+    raw.split(',').forEach(entry => {
+      const colonIdx = entry.indexOf(':');
+      if (colonIdx > 0) {
+        const name = entry.slice(0, colonIdx).trim().toLowerCase().replace(/\s+/g, '_');
+        const password = entry.slice(colonIdx + 1).trim();
+        if (name && password && !viewers.find(v => v.password === password)) {
+          viewers.push({ name, password });
+        }
+      }
+    });
+  }
+  return viewers;
+}
+
 export default function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const { password } = req.body || {};
   const AP = process.env.ADMIN_PASSWORD;
-  // Support both PARTNER_PASSWORD and ZAHID_PASSWORD
-  const PP = process.env.PARTNER_PASSWORD || process.env.ZAHID_PASSWORD;
+  const viewers = getViewers();
 
-  if (!AP || !PP) {
+  if (!AP) {
     return res.status(503).json({
-      error: 'Passwords not configured. Please set ADMIN_PASSWORD and PARTNER_PASSWORD in Vercel Environment Variables.',
+      error: 'Dashboard not configured. Please set ADMIN_PASSWORD in Vercel Environment Variables.',
     });
   }
 
-  let role = null;
-  if (password === AP) role = 'admin';
-  else if (password === PP) role = 'partner';
+  const maxAge = 7 * 24 * 60 * 60;
 
-  if (!role) return res.status(401).json({ error: 'Incorrect password. Please try again.' });
+  if (password === AP) {
+    res.setHeader('Set-Cookie', `mc_role=admin; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`);
+    return res.status(200).json({ role: 'admin' });
+  }
 
-  const maxAge = 7 * 24 * 60 * 60; // 7 days
-  res.setHeader('Set-Cookie', `mc_role=${role}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`);
-  return res.status(200).json({ role });
+  const viewer = viewers.find(v => v.password === password);
+  if (viewer) {
+    res.setHeader('Set-Cookie', `mc_role=partner; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`);
+    return res.status(200).json({ role: 'partner', name: viewer.name });
+  }
+
+  return res.status(401).json({ error: 'Incorrect password. Please try again.' });
 }
