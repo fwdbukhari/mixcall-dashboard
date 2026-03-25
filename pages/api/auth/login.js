@@ -2,7 +2,8 @@ export default function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const { password } = req.body || {};
   const AP = process.env.ADMIN_PASSWORD;
-  const PP = process.env.PARTNER_PASSWORD;
+  // Support both PARTNER_PASSWORD and ZAHID_PASSWORD
+  const PP = process.env.PARTNER_PASSWORD || process.env.ZAHID_PASSWORD;
 
   if (!AP || !PP) {
     return res.status(503).json({
