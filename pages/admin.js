@@ -9,6 +9,7 @@ import {
   stepMonth, EMPTY_MONTH
 } from '../lib/calculations';
 
+// Revenue fields — USD only
 function InputField({ label, value, onChange, placeholder = '0.00', hint }) {
   return (
     <div>
@@ -26,6 +27,98 @@ function InputField({ label, value, onChange, placeholder = '0.00', hint }) {
           className="w-full pl-7 pr-3 py-2.5 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-500/60 text-sm transition-all"
         />
       </div>
+    </div>
+  );
+}
+
+// Expense fields — USD or PKR with auto-conversion
+function ExpenseField({ label, usdValue, onChange, rate }) {
+  const [currency, setCurrency] = useState('USD');
+  const [rawInput, setRawInput] = useState('');
+
+  // Sync display when external value changes (e.g. loading saved data)
+  // Only sync if field is in USD mode and value changed externally
+  const [prevUsd, setPrevUsd] = useState(usdValue);
+  if (usdValue !== prevUsd && currency === 'USD') {
+    setPrevUsd(usdValue);
+    setRawInput(usdValue || '');
+  }
+
+  function handleCurrencyToggle(newCurrency) {
+    if (newCurrency === currency) return;
+    // Convert displayed value to the other currency for convenience
+    if (newCurrency === 'PKR' && rawInput) {
+      const usd = parseFloat(rawInput) || 0;
+      setRawInput(usd > 0 ? (usd * rate).toFixed(0) : '');
+    } else if (newCurrency === 'USD' && rawInput) {
+      const pkr = parseFloat(rawInput) || 0;
+      setRawInput(pkr > 0 ? (pkr / rate).toFixed(2) : '');
+    }
+    setCurrency(newCurrency);
+  }
+
+  function handleChange(val) {
+    setRawInput(val);
+    // Always store as USD regardless of input currency
+    if (currency === 'PKR') {
+      const pkr = parseFloat(val) || 0;
+      onChange(pkr > 0 ? (pkr / rate).toFixed(4) : '');
+    } else {
+      onChange(val);
+    }
+  }
+
+  const pkrAmount  = currency === 'PKR' ? (parseFloat(rawInput) || 0) : ((parseFloat(rawInput) || 0) * rate);
+  const usdAmount  = currency === 'USD' ? (parseFloat(rawInput) || 0) : ((parseFloat(rawInput) || 0) / rate);
+  const showHint   = rawInput && parseFloat(rawInput) > 0;
+
+  return (
+    <div>
+      <label className="block text-xs font-medium text-slate-400 mb-1">{label}</label>
+      <div className="flex gap-1.5">
+        {/* Currency toggle */}
+        <div className="flex bg-slate-700/80 border border-slate-600/60 rounded-lg overflow-hidden flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => handleCurrencyToggle('USD')}
+            className={`px-2 py-2 text-xs font-semibold transition-all ${currency === 'USD' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'}`}
+          >
+            $
+          </button>
+          <button
+            type="button"
+            onClick={() => handleCurrencyToggle('PKR')}
+            className={`px-2 py-2 text-xs font-semibold transition-all ${currency === 'PKR' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
+          >
+            ₨
+          </button>
+        </div>
+        {/* Input */}
+        <div className="relative flex-1">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">
+            {currency === 'USD' ? '$' : '₨'}
+          </span>
+          <input
+            type="number"
+            value={rawInput}
+            onChange={e => handleChange(e.target.value)}
+            placeholder={currency === 'USD' ? '0.00' : '0'}
+            min="0"
+            step={currency === 'USD' ? '0.01' : '1'}
+            className="w-full pl-7 pr-3 py-2.5 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-500/60 text-sm transition-all"
+          />
+        </div>
+      </div>
+      {/* Conversion hint */}
+      {showHint && (
+        <p className="text-xs mt-1 ml-0.5">
+          {currency === 'PKR' ? (
+            <span className="text-violet-400">≈ <strong>${usdAmount.toFixed(2)} USD</strong> saved to report</span>
+          ) : (
+            <span className="text-emerald-400">≈ <strong>₨ {pkrAmount.toLocaleString('en-PK', {maximumFractionDigits:0})} PKR</strong></span>
+          )}
+        </p>
+      )}
     </div>
   );
 }
@@ -127,6 +220,71 @@ function MonthPicker({ month, setMonth, savedMonths }) {
           disabled={month >= getCurrentMonth()}
           className="w-9 h-9 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-300 transition-colors text-lg disabled:opacity-30">›</button>
       </div>
+    </div>
+  );
+}
+
+// Other expense row — also supports PKR/USD
+function OtherExpenseRow({ item, rate, onNameChange, onAmountChange, onRemove }) {
+  const [currency, setCurrency] = useState('USD');
+  const [rawInput, setRawInput] = useState(item.amount || '');
+
+  function handleCurrencyToggle(newCurrency) {
+    if (newCurrency === currency) return;
+    if (newCurrency === 'PKR' && rawInput) {
+      const usd = parseFloat(rawInput) || 0;
+      setRawInput(usd > 0 ? (usd * rate).toFixed(0) : '');
+    } else if (newCurrency === 'USD' && rawInput) {
+      const pkr = parseFloat(rawInput) || 0;
+      setRawInput(pkr > 0 ? (pkr / rate).toFixed(2) : '');
+    }
+    setCurrency(newCurrency);
+  }
+
+  function handleAmountChange(val) {
+    setRawInput(val);
+    if (currency === 'PKR') {
+      const pkr = parseFloat(val) || 0;
+      onAmountChange(pkr > 0 ? (pkr / rate).toFixed(4) : '');
+    } else {
+      onAmountChange(val);
+    }
+  }
+
+  const usdAmount = currency === 'USD' ? (parseFloat(rawInput) || 0) : ((parseFloat(rawInput) || 0) / rate);
+  const pkrAmount = currency === 'PKR' ? (parseFloat(rawInput) || 0) : ((parseFloat(rawInput) || 0) * rate);
+  const showHint  = rawInput && parseFloat(rawInput) > 0;
+
+  return (
+    <div>
+      <div className="flex gap-2 items-center">
+        <input type="text" placeholder="Description" value={item.name}
+          onChange={e => onNameChange(e.target.value)}
+          className="flex-1 px-3 py-2 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm" />
+        {/* Currency toggle */}
+        <div className="flex bg-slate-700/80 border border-slate-600/60 rounded-lg overflow-hidden flex-shrink-0">
+          <button type="button" onClick={() => handleCurrencyToggle('USD')}
+            className={`px-2 py-2 text-xs font-semibold transition-all ${currency === 'USD' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'}`}>$</button>
+          <button type="button" onClick={() => handleCurrencyToggle('PKR')}
+            className={`px-2 py-2 text-xs font-semibold transition-all ${currency === 'PKR' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>₨</button>
+        </div>
+        <div className="relative w-28">
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">{currency === 'USD' ? '$' : '₨'}</span>
+          <input type="number" placeholder="0" value={rawInput}
+            onChange={e => handleAmountChange(e.target.value)}
+            min="0" step={currency === 'USD' ? '0.01' : '1'}
+            className="w-full pl-6 pr-2 py-2 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm" />
+        </div>
+        <button onClick={onRemove} className="text-red-400 hover:text-red-300 text-lg w-7 flex-shrink-0">×</button>
+      </div>
+      {showHint && (
+        <p className="text-xs mt-1 ml-0.5">
+          {currency === 'PKR'
+            ? <span className="text-violet-400">≈ <strong>${usdAmount.toFixed(2)} USD</strong> saved to report</span>
+            : <span className="text-emerald-400">≈ <strong>₨ {pkrAmount.toLocaleString('en-PK', {maximumFractionDigits:0})} PKR</strong></span>
+          }
+        </p>
+      )}
     </div>
   );
 }
@@ -302,29 +460,32 @@ export default function AdminDashboard() {
 
                     {/* Expenses */}
                     <div className="bg-slate-800/60 rounded-xl p-5 border border-slate-700/50">
-                      <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2"><span className="w-5 h-5 rounded-md bg-red-500/20 flex items-center justify-center text-xs">📤</span> Expenses (USD)</h3>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2"><span className="w-5 h-5 rounded-md bg-red-500/20 flex items-center justify-center text-xs">📤</span> Expenses</h3>
+                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                          <span className="inline-flex items-center gap-1 bg-violet-600/20 text-violet-400 px-2 py-0.5 rounded-md">$ USD</span>
+                          <span className="inline-flex items-center gap-1 bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded-md">₨ PKR</span>
+                          <span className="text-slate-600 ml-1">→ auto-converts to USD</span>
+                        </span>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <InputField label="Marketing Spend" value={form.expenses.marketingSpend} onChange={v => setExpense('marketingSpend', v)} />
-                        <InputField label="Server Cost" value={form.expenses.serverCost} onChange={v => setExpense('serverCost', v)} />
-                        <InputField label="Paid Reviews" value={form.expenses.paidReviews} onChange={v => setExpense('paidReviews', v)} />
-                        <InputField label="Tax" value={form.expenses.tax} onChange={v => setExpense('tax', v)} />
+                        <ExpenseField label="Marketing Spend" usdValue={form.expenses.marketingSpend} onChange={v => setExpense('marketingSpend', v)} rate={parseFloat(form.exchangeRate) || 280} />
+                        <ExpenseField label="Server Cost"     usdValue={form.expenses.serverCost}     onChange={v => setExpense('serverCost', v)}     rate={parseFloat(form.exchangeRate) || 280} />
+                        <ExpenseField label="Paid Reviews"    usdValue={form.expenses.paidReviews}    onChange={v => setExpense('paidReviews', v)}    rate={parseFloat(form.exchangeRate) || 280} />
+                        <ExpenseField label="Tax"             usdValue={form.expenses.tax}             onChange={v => setExpense('tax', v)}             rate={parseFloat(form.exchangeRate) || 280} />
                       </div>
                       {(form.expenses.otherExpenses || []).length > 0 && (
                         <div className="mt-4 space-y-2">
                           <p className="text-xs text-slate-500 font-medium">Other Expenses</p>
                           {(form.expenses.otherExpenses || []).map((item, i) => (
-                            <div key={i} className="flex gap-2 items-center">
-                              <input type="text" placeholder="Description" value={item.name}
-                                onChange={e => updateOtherExpense(i, 'name', e.target.value)}
-                                className="flex-1 px-3 py-2 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm" />
-                              <div className="relative w-32">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
-                                <input type="number" placeholder="0.00" value={item.amount}
-                                  onChange={e => updateOtherExpense(i, 'amount', e.target.value)}
-                                  className="w-full pl-7 pr-2 py-2 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm" />
-                              </div>
-                              <button onClick={() => removeOtherExpense(i)} className="text-red-400 hover:text-red-300 text-lg w-8">×</button>
-                            </div>
+                            <OtherExpenseRow
+                              key={i}
+                              item={item}
+                              rate={parseFloat(form.exchangeRate) || 280}
+                              onNameChange={v => updateOtherExpense(i, 'name', v)}
+                              onAmountChange={v => updateOtherExpense(i, 'amount', v)}
+                              onRemove={() => removeOtherExpense(i)}
+                            />
                           ))}
                         </div>
                       )}
