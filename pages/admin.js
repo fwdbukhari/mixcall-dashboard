@@ -1,0 +1,445 @@
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+import {
+  calculateSummary, formatUSD, formatPKR,
+  getMonthLabel, getCurrentMonth, stepMonth, EMPTY_MONTH
+} from '../lib/calculations';
+
+function InputField({ label, value, onChange, placeholder = '0.00', hint }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-slate-400 mb-1">{label}</label>
+      {hint && <p className="text-xs text-slate-500 mb-1">{hint}</p>}
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+        <input
+          type="number"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          min="0"
+          step="0.01"
+          className="w-full pl-7 pr-3 py-2.5 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-500/60 text-sm transition-all"
+        />
+      </div>
+    </div>
+  );
+}
+
+function SummaryRow({ label, usd, pkr, highlight, negative, indent }) {
+  const color = highlight ? 'text-violet-300 font-bold text-base' : negative ? 'text-red-400' : 'text-slate-200';
+  return (
+    <div className={`flex justify-between items-start py-1.5 ${indent ? 'pl-4' : ''}`}>
+      <span className={`text-sm ${highlight ? 'text-violet-300 font-semibold' : negative ? 'text-red-400' : 'text-slate-400'}`}>{label}</span>
+      <div className="text-right">
+        <div className={`text-sm font-mono ${color}`}>{usd}</div>
+        <div className="text-xs text-slate-500 font-mono">{pkr}</div>
+      </div>
+    </div>
+  );
+}
+
+function KVBanner() {
+  return (
+    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 mb-4 flex gap-3 items-start">
+      <span className="text-amber-400 mt-0.5">⚠️</span>
+      <div>
+        <p className="text-amber-300 text-sm font-semibold">Data not persisted yet</p>
+        <p className="text-amber-400/80 text-xs mt-0.5">
+          Set up Vercel KV Storage to save data permanently. Go to Vercel Dashboard → Storage → Create KV Database → Connect to this project.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function AdminDashboard() {
+  const router = useRouter();
+  const [month, setMonth] = useState(getCurrentMonth());
+  const [form, setForm] = useState(EMPTY_MONTH);
+  const [allMonths, setAllMonths] = useState([]);
+  const [allData, setAllData] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [kvReady, setKvReady] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/data').then(r => r.json()).then(d => {
+      setAllMonths(d.months || []);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/data/${month}`).then(r => r.json()).then(d => {
+      if (d.data) setForm({ ...EMPTY_MONTH, ...d.data });
+      else setForm({ ...EMPTY_MONTH });
+      setKvReady(d.kvReady !== false);
+    }).catch(() => {
+      setForm({ ...EMPTY_MONTH });
+    }).finally(() => setLoading(false));
+  }, [month]);
+
+  useEffect(() => {
+    if (allMonths.length === 0) return;
+    Promise.all(allMonths.map(m =>
+      fetch(`/api/data/${m}`).then(r => r.json()).then(d => [m, d.data])
+    )).then(entries => {
+      setAllData(Object.fromEntries(entries.filter(([, d]) => d)));
+    });
+  }, [allMonths]);
+
+  const summary = useMemo(() => calculateSummary(form), [form]);
+
+  function setRevenue(field, val) {
+    setForm(f => ({ ...f, revenue: { ...f.revenue, [field]: val } }));
+    setSaved(false);
+  }
+  function setExpense(field, val) {
+    setForm(f => ({ ...f, expenses: { ...f.expenses, [field]: val } }));
+    setSaved(false);
+  }
+  function addOtherExpense() {
+    setForm(f => ({
+      ...f, expenses: {
+        ...f.expenses,
+        otherExpenses: [...(f.expenses.otherExpenses || []), { name: '', amount: '' }]
+      }
+    }));
+  }
+  function updateOtherExpense(i, field, val) {
+    setForm(f => {
+      const arr = [...(f.expenses.otherExpenses || [])];
+      arr[i] = { ...arr[i], [field]: val };
+      return { ...f, expenses: { ...f.expenses, otherExpenses: arr } };
+    });
+    setSaved(false);
+  }
+  function removeOtherExpense(i) {
+    setForm(f => {
+      const arr = [...(f.expenses.otherExpenses || [])];
+      arr.splice(i, 1);
+      return { ...f, expenses: { ...f.expenses, otherExpenses: arr } };
+    });
+    setSaved(false);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/data/${month}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const d = await res.json();
+      setKvReady(d.kvReady !== false);
+      setSaved(true);
+      if (!allMonths.includes(month)) {
+        setAllMonths(prev => [month, ...prev].sort().reverse());
+      }
+      setAllData(prev => ({ ...prev, [month]: d.data }));
+    } catch { /* ignore */ }
+    finally { setSaving(false); }
+  }
+
+  async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/');
+  }
+
+  return (
+    <>
+      <Head><title>MixCall Admin Dashboard</title></Head>
+      <div className="min-h-screen bg-slate-900 text-white">
+
+        {/* Header */}
+        <header className="bg-slate-800/80 backdrop-blur border-b border-slate-700/50 sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-lg shadow-lg shadow-violet-500/30">📞</div>
+              <div>
+                <h1 className="text-base font-bold text-white leading-none">MixCall</h1>
+                <p className="text-xs text-slate-400 leading-none mt-0.5">Revenue Dashboard</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 text-xs font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+                Admin
+              </span>
+              <button onClick={logout} className="px-3 py-1.5 text-slate-400 hover:text-white text-sm transition-colors">
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {!kvReady && <KVBanner />}
+
+          {/* Month Selector */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-white">{getMonthLabel(month)}</h2>
+              <p className="text-slate-500 text-sm">Monthly Revenue Report</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setMonth(s => stepMonth(s, -1))}
+                className="w-9 h-9 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-300 transition-colors">‹</button>
+              <select
+                value={month}
+                onChange={e => setMonth(e.target.value)}
+                className="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              >
+                {/* Show all saved months + current month */}
+                {[...new Set([month, ...allMonths])].sort().reverse().slice(0, 24).map(m => (
+                  <option key={m} value={m}>{getMonthLabel(m)}</option>
+                ))}
+              </select>
+              <button onClick={() => setMonth(s => stepMonth(s, 1))}
+                className="w-9 h-9 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-300 transition-colors">›</button>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-16 text-slate-500">Loading…</div>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+              {/* LEFT: Form */}
+              <div className="xl:col-span-2 space-y-5">
+
+                {/* Exchange Rate */}
+                <div className="bg-slate-800/60 rounded-xl p-5 border border-slate-700/50">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-md bg-slate-600 flex items-center justify-center text-xs">💱</span>
+                    Exchange Rate
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">USD → PKR Rate</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={form.exchangeRate}
+                          onChange={e => { setForm(f => ({ ...f, exchangeRate: e.target.value })); setSaved(false); }}
+                          placeholder="280"
+                          className="w-full px-3 py-2.5 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-end">
+                      <p className="text-slate-400 text-sm pb-2.5">1 USD = <span className="text-violet-300 font-semibold">{form.exchangeRate || '280'}</span> PKR</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Revenue */}
+                <div className="bg-slate-800/60 rounded-xl p-5 border border-slate-700/50">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-md bg-green-500/20 flex items-center justify-center text-xs">💰</span>
+                    Revenue (USD)
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InputField
+                      label="Gross Ads Revenue"
+                      value={form.revenue.adsRevenue}
+                      onChange={v => setRevenue('adsRevenue', v)}
+                      hint="Total AdMob / Ad earnings before deductions"
+                    />
+                    <InputField
+                      label="Invalid Traffic Deduction"
+                      value={form.revenue.invalidTrafficDeduction}
+                      onChange={v => setRevenue('invalidTrafficDeduction', v)}
+                      hint="Amount deducted by ad network for invalid traffic"
+                    />
+                    <InputField
+                      label="Subscription Revenue"
+                      value={form.revenue.subscriptionRevenue}
+                      onChange={v => setRevenue('subscriptionRevenue', v)}
+                      hint="Google Play subscription earnings"
+                    />
+                  </div>
+                </div>
+
+                {/* Expenses */}
+                <div className="bg-slate-800/60 rounded-xl p-5 border border-slate-700/50">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-md bg-red-500/20 flex items-center justify-center text-xs">📤</span>
+                    Expenses (USD)
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InputField label="Marketing Spend" value={form.expenses.marketingSpend} onChange={v => setExpense('marketingSpend', v)} />
+                    <InputField label="Server Cost" value={form.expenses.serverCost} onChange={v => setExpense('serverCost', v)} />
+                    <InputField label="Paid Reviews" value={form.expenses.paidReviews} onChange={v => setExpense('paidReviews', v)} />
+                    <InputField label="Tax" value={form.expenses.tax} onChange={v => setExpense('tax', v)} />
+                  </div>
+
+                  {/* Other Expenses */}
+                  {(form.expenses.otherExpenses || []).length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs text-slate-500 font-medium">Other Expenses</p>
+                      {(form.expenses.otherExpenses || []).map((item, i) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          <input
+                            type="text"
+                            placeholder="Description"
+                            value={item.name}
+                            onChange={e => updateOtherExpense(i, 'name', e.target.value)}
+                            className="flex-1 px-3 py-2 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm"
+                          />
+                          <div className="relative w-32">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                            <input
+                              type="number"
+                              placeholder="0.00"
+                              value={item.amount}
+                              onChange={e => updateOtherExpense(i, 'amount', e.target.value)}
+                              className="w-full pl-7 pr-2 py-2 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm"
+                            />
+                          </div>
+                          <button onClick={() => removeOtherExpense(i)} className="text-red-400 hover:text-red-300 text-lg w-8 flex-shrink-0">×</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button
+                    onClick={addOtherExpense}
+                    className="mt-4 text-sm text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
+                  >
+                    <span className="text-lg leading-none">+</span> Add Other Expense
+                  </button>
+                </div>
+
+                {/* Notes */}
+                <div className="bg-slate-800/60 rounded-xl p-5 border border-slate-700/50">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-3">Notes (optional)</h3>
+                  <textarea
+                    value={form.notes}
+                    onChange={e => { setForm(f => ({ ...f, notes: e.target.value })); setSaved(false); }}
+                    placeholder="Any notes for this month..."
+                    rows={3}
+                    className="w-full px-3 py-2.5 bg-slate-700/60 border border-slate-600/60 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/60 text-sm resize-none"
+                  />
+                </div>
+
+                {/* Save Button */}
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-violet-500/20 text-base"
+                >
+                  {saving ? 'Saving…' : saved ? '✓ Saved!' : `Save ${getMonthLabel(month)} Data`}
+                </button>
+              </div>
+
+              {/* RIGHT: Summary */}
+              <div className="space-y-5">
+                {/* Live Summary */}
+                <div className="bg-slate-800/60 rounded-xl p-5 border border-slate-700/50 sticky top-20">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <span>📊</span> Live Summary
+                    <span className="ml-auto text-xs text-slate-500 font-normal">Auto-calculated</span>
+                  </h3>
+
+                  {summary && (
+                    <>
+                      <div className="space-y-0.5 border-b border-slate-700/50 pb-3 mb-3">
+                        <p className="text-xs text-slate-500 font-medium mb-1.5">REVENUE</p>
+                        <SummaryRow label="Gross Ads Revenue" usd={formatUSD(summary.adsRevenue)} pkr={formatPKR(summary.adsRevenue * summary.rate)} />
+                        <SummaryRow label="(-) Invalid Traffic" usd={formatUSD(summary.invalidDeduction)} pkr={formatPKR(summary.invalidDeduction * summary.rate)} negative indent />
+                        <SummaryRow label="Net Ads Revenue" usd={formatUSD(summary.netAdsRevenue)} pkr={formatPKR(summary.netAdsRevenue * summary.rate)} />
+                        <SummaryRow label="Subscription Revenue" usd={formatUSD(summary.subscriptionRev)} pkr={formatPKR(summary.subscriptionRev * summary.rate)} />
+                        <div className="border-t border-slate-700/50 mt-1.5 pt-1.5">
+                          <SummaryRow label="Total Revenue" usd={formatUSD(summary.totalRevenue)} pkr={formatPKR(summary.totalRevenuePKR)} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-0.5 border-b border-slate-700/50 pb-3 mb-3">
+                        <p className="text-xs text-slate-500 font-medium mb-1.5">EXPENSES</p>
+                        <SummaryRow label="Marketing" usd={formatUSD(summary.marketing)} pkr={formatPKR(summary.marketing * summary.rate)} negative />
+                        <SummaryRow label="Server Cost" usd={formatUSD(summary.server)} pkr={formatPKR(summary.server * summary.rate)} negative />
+                        <SummaryRow label="Paid Reviews" usd={formatUSD(summary.reviews)} pkr={formatPKR(summary.reviews * summary.rate)} negative />
+                        <SummaryRow label="Tax" usd={formatUSD(summary.tax)} pkr={formatPKR(summary.tax * summary.rate)} negative />
+                        {summary.other > 0 && <SummaryRow label="Other" usd={formatUSD(summary.other)} pkr={formatPKR(summary.other * summary.rate)} negative />}
+                        <div className="border-t border-slate-700/50 mt-1.5 pt-1.5">
+                          <SummaryRow label="Total Expenses" usd={formatUSD(summary.totalExpenses)} pkr={formatPKR(summary.totalExpensesPKR)} negative />
+                        </div>
+                      </div>
+
+                      {/* Net Profit */}
+                      <div className={`rounded-lg p-3 mb-3 ${summary.netProfit >= 0 ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
+                        <p className="text-xs text-slate-400 mb-0.5">Net Profit</p>
+                        <p className={`text-xl font-bold font-mono ${summary.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formatUSD(summary.netProfit)}</p>
+                        <p className="text-xs text-slate-500 font-mono">{formatPKR(summary.netProfitPKR)}</p>
+                      </div>
+
+                      {/* Shares */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3">
+                          <p className="text-xs text-violet-400 mb-0.5">Your Share (75%)</p>
+                          <p className="text-base font-bold text-violet-300 font-mono">{formatUSD(summary.adminShare)}</p>
+                          <p className="text-xs text-slate-500 font-mono">{formatPKR(summary.adminSharePKR)}</p>
+                        </div>
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                          <p className="text-xs text-blue-400 mb-0.5">Partner (25%)</p>
+                          <p className="text-base font-bold text-blue-300 font-mono">{formatUSD(summary.partnerShare)}</p>
+                          <p className="text-xs text-slate-500 font-mono">{formatPKR(summary.partnerSharePKR)}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* History Table */}
+          {allMonths.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-base font-semibold text-white mb-4">📅 Monthly History</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs text-slate-500 border-b border-slate-700/50">
+                      <th className="pb-2 font-medium pr-4">Month</th>
+                      <th className="pb-2 font-medium pr-4 text-right">Revenue</th>
+                      <th className="pb-2 font-medium pr-4 text-right">Expenses</th>
+                      <th className="pb-2 font-medium pr-4 text-right">Net Profit</th>
+                      <th className="pb-2 font-medium pr-4 text-right">Your 75%</th>
+                      <th className="pb-2 font-medium text-right">Partner 25%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allMonths.map(m => {
+                      const d = allData[m];
+                      if (!d) return null;
+                      const s = calculateSummary(d);
+                      if (!s) return null;
+                      return (
+                        <tr key={m}
+                          onClick={() => setMonth(m)}
+                          className={`border-b border-slate-800 hover:bg-slate-800/60 cursor-pointer transition-colors ${m === month ? 'bg-slate-800/60' : ''}`}
+                        >
+                          <td className="py-2.5 pr-4 font-medium text-slate-300">{getMonthLabel(m)}</td>
+                          <td className="py-2.5 pr-4 text-right text-slate-300 font-mono">{formatUSD(s.totalRevenue)}</td>
+                          <td className="py-2.5 pr-4 text-right text-red-400 font-mono">{formatUSD(s.totalExpenses)}</td>
+                          <td className={`py-2.5 pr-4 text-right font-mono font-semibold ${s.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
+                          <td className="py-2.5 pr-4 text-right text-violet-300 font-mono">{formatUSD(s.adminShare)}</td>
+                          <td className="py-2.5 text-right text-blue-300 font-mono">{formatUSD(s.partnerShare)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
