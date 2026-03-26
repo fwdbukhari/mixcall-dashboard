@@ -48,13 +48,20 @@ export default function handler(req, res) {
   const maxAge = 7 * 24 * 60 * 60;
 
   if (password === AP) {
-    res.setHeader('Set-Cookie', `mc_role=admin; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`);
+    const adminName = process.env.ADMIN_NAME || 'Fawad';
+    res.setHeader('Set-Cookie', [
+      `mc_role=admin; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`,
+      `mc_name=${encodeURIComponent(adminName)}; Path=/; SameSite=Strict; Max-Age=${maxAge}`,
+    ]);
     return res.status(200).json({ role: 'admin' });
   }
 
   const viewer = viewers.find(v => v.password === password);
   if (viewer) {
-    res.setHeader('Set-Cookie', `mc_role=partner; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`);
+    res.setHeader('Set-Cookie', [
+      `mc_role=partner; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`,
+      `mc_name=${encodeURIComponent(viewer.name)}; Path=/; SameSite=Strict; Max-Age=${maxAge}`,
+    ]);
     return res.status(200).json({ role: 'partner', name: viewer.name });
   }
 

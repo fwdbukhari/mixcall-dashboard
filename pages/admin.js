@@ -377,6 +377,19 @@ function AdminYearCard({ year, ys, monthsInYear, allData, month, setMonth, setAc
   );
 }
 
+function getCookie(name) {
+  if (typeof document === 'undefined') return '';
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+  return '';
+}
+
+function formatDisplayName(raw) {
+  if (!raw) return '';
+  return raw.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [month, setMonth] = useState(getCurrentMonth());
@@ -389,6 +402,12 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('entry'); // 'entry' | 'yearly'
   const [showAllHistory, setShowAllHistory] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const name = getCookie('mc_name');
+    setUserName(formatDisplayName(name) || 'Admin');
+  }, []);
 
   useEffect(() => {
     fetch('/api/data').then(r => r.json()).then(d => {
@@ -486,7 +505,7 @@ export default function AdminDashboard() {
                 </button>
               </div>
               <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 text-xs font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>Admin
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>👤 {userName}
               </span>
               <ThemeToggle />
               <button onClick={logout} className="px-2 sm:px-3 py-1.5 text-slate-400 hover:text-white text-xs sm:text-sm transition-colors">Out</button>

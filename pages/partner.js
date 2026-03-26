@@ -371,6 +371,19 @@ function DownloadButtons({ months, allData, label }) {
 }
 
 // ─── Main ───────────────────────────────────────────────────────────────────────
+function getCookie(name) {
+  if (typeof document === 'undefined') return '';
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+  return '';
+}
+
+function formatDisplayName(raw) {
+  if (!raw) return '';
+  return raw.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 export default function PartnerDashboard() {
   const router = useRouter();
   const [month, setMonth] = useState(getCurrentMonth());
@@ -381,6 +394,12 @@ export default function PartnerDashboard() {
   const [activeTab, setActiveTab] = useState('monthly');
   const [chartType, setChartType] = useState('bar');
   const [showHistorical, setShowHistorical] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const name = getCookie('mc_name');
+    setUserName(formatDisplayName(name) || 'Partner');
+  }, []);
 
   useEffect(()=>{
     fetch('/api/data').then(r=>r.json()).then(d=>{
