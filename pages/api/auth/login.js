@@ -33,12 +33,6 @@ function getViewers() {
   return viewers;
 }
 
-function cookieOpts(maxAge) {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const secure = isProduction ? '; Secure' : '';
-  return `Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
-}
-
 export default function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const { password } = req.body || {};
@@ -51,24 +45,24 @@ export default function handler(req, res) {
     });
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secure = isProduction ? '; Secure' : '';
   const maxAge = 7 * 24 * 60 * 60;
-  const opts = cookieOpts(maxAge);
+
+  // mc_role: HttpOnly (only needed server-side by middleware)
+  const roleCookie = (val) => `mc_role=${val}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
+  // mc_name: NO HttpOnly — must be readable by JavaScript in the browser
+  const nameCookie = (val) => `mc_name=${encodeURIComponent(val)}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`;
 
   if (password === AP) {
     const adminName = process.env.ADMIN_NAME || 'Fawad';
-    res.setHeader('Set-Cookie', [
-      `mc_role=admin; ${opts}`,
-      `mc_name=${encodeURIComponent(adminName)}; ${opts}`,
-    ]);
+    res.setHeader('Set-Cookie', [roleCookie('admin'), nameCookie(adminName)]);
     return res.status(200).json({ role: 'admin' });
   }
 
   const viewer = viewers.find(v => v.password === password);
   if (viewer) {
-    res.setHeader('Set-Cookie', [
-      `mc_role=partner; ${opts}`,
-      `mc_name=${encodeURIComponent(viewer.name)}; ${opts}`,
-    ]);
+    res.setHeader('Set-Cookie', [roleCookie('partner'), nameCookie(viewer.name)]);
     return res.status(200).json({ role: 'partner', name: viewer.name });
   }
 
