@@ -13,8 +13,8 @@ function getViewers() {
   const viewers = [];
 
   // Legacy single partner support
-  const legacy = process.env.PARTNER_PASSWORD || process.env.ZAHID_PASSWORD;
-  if (legacy) viewers.push({ name: 'partner', password: legacy });
+  if (process.env.ZAHID_PASSWORD) viewers.push({ name: 'Zahid', password: process.env.ZAHID_PASSWORD });
+  else if (process.env.PARTNER_PASSWORD) viewers.push({ name: 'Partner', password: process.env.PARTNER_PASSWORD });
 
   // Multi-viewer support via VIEWER_USERS
   const raw = process.env.VIEWER_USERS || '';
