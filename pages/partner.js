@@ -438,7 +438,7 @@ export default function PartnerDashboard() {
         <header className="bg-slate-800/80 backdrop-blur border-b border-slate-700/50 sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-base sm:text-lg shadow-lg shadow-blue-500/30">📞</div>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 rounded-xl overflow-hidden shadow-lg shadow-blue-500/30"><img src="/mixcall-icon.png" alt="MixCall" className="w-full h-full object-cover" /></div>
               <div className="min-w-0">
                 <h1 className="text-sm sm:text-base font-bold text-white leading-none">MixCall</h1>
                 <p className="text-xs text-slate-400 leading-none mt-0.5">Partner Portal</p>

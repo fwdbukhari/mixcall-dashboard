@@ -70,8 +70,8 @@ export default function Login() {
         <div className="w-full max-w-sm px-0">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500 to-violet-700 mb-4 shadow-2xl shadow-violet-500/40">
-              <span className="text-4xl">📞</span>
+            <div className="w-20 h-20 rounded-3xl overflow-hidden mb-4 shadow-2xl shadow-violet-500/40">
+              <img src="/mixcall-icon.png" alt="MixCall" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-3xl font-bold tracking-tight" style={{color:'#ffffff'}}>MixCall</h1>
             <p className="mt-1 text-sm tracking-widest uppercase" style={{color:'#94a3b8'}}>Revenue Dashboard</p>
