@@ -450,7 +450,7 @@ export default function PartnerDashboard() {
                 <button onClick={()=>setActiveTab('yearly')} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab==='yearly'?'bg-blue-600 text-white shadow':'text-slate-400 hover:text-white'}`}>📊 Yearly</button>
               </div>
               <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-blue-300 text-xs font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>Partner · 25%
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>👤 {userName}
               </span>
               <ThemeToggle />
               <button onClick={logout} className="px-2 sm:px-3 py-1.5 text-slate-400 hover:text-white text-xs sm:text-sm transition-colors">Out</button>
