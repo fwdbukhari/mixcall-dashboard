@@ -17,7 +17,7 @@ function RevenueChart({ years, allData, type }) {
   }).reverse(), [years, allData]);
 
   if (data.length === 0) return null;
-  const W=600,H=260,PAD={top:20,right:20,bottom:40,left:70};
+  const W=600, H=280, PAD={top:20,right:20,bottom:55,left:70};
   const chartW=W-PAD.left-PAD.right, chartH=H-PAD.top-PAD.bottom;
   const allVals=data.flatMap(d=>[d.revenue,d.expenses,d.partnerShare]);
   const maxVal=Math.max(...allVals,1);
@@ -27,29 +27,35 @@ function RevenueChart({ years, allData, type }) {
   const ticks=4;
   const yTicks=Array.from({length:ticks+1},(_,i)=>(maxVal/ticks)*i);
   const series=[{key:'revenue',color:'#34d399',label:'Revenue'},{key:'expenses',color:'#f87171',label:'Expenses'},{key:'partnerShare',color:'#60a5fa',label:'Your 25%'}];
+  // Bottom of chart area
+  const chartBottom = PAD.top + chartH;
 
   if (type==='bar') {
     const bw=Math.max(8,xStep/4-2);
     const offsets=[-bw-2,0,bw+2];
     return (
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{maxHeight:260}}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{maxHeight:280}}>
         {yTicks.map((v,i)=>(
           <g key={i}>
             <line x1={PAD.left} y1={PAD.top+yScale(v)} x2={W-PAD.right} y2={PAD.top+yScale(v)} stroke="#334155" strokeWidth="1" strokeDasharray="4,3"/>
             <text x={PAD.left-6} y={PAD.top+yScale(v)+4} textAnchor="end" fontSize="9" fill="#64748b">${v>=1000?(v/1000).toFixed(0)+'k':v.toFixed(0)}</text>
           </g>
         ))}
+        {/* Baseline */}
+        <line x1={PAD.left} y1={chartBottom} x2={W-PAD.right} y2={chartBottom} stroke="#475569" strokeWidth="1"/>
         {data.map((d,i)=>(
           <g key={d.year}>
             {series.map((s,si)=>{
               const bh=Math.max(1,(d[s.key]/maxVal)*chartH);
               return <rect key={s.key} x={xPos(i)+offsets[si]-bw/2} y={PAD.top+yScale(d[s.key])} width={bw} height={bh} fill={s.color} opacity="0.85" rx="2"><title>{s.label}: {formatUSD(d[s.key])}</title></rect>;
             })}
-            <text x={xPos(i)} y={H-8} textAnchor="middle" fontSize="10" fill="#94a3b8">{d.year}</text>
+            {/* Year label below baseline */}
+            <text x={xPos(i)} y={chartBottom+14} textAnchor="middle" fontSize="11" fontWeight="500" fill="#94a3b8">{d.year}</text>
           </g>
         ))}
+        {/* Legend */}
         {series.map((s,i)=>(
-          <g key={s.key} transform={`translate(${PAD.left+i*110},${H-2})`}>
+          <g key={s.key} transform={`translate(${PAD.left+i*110},${H-4})`}>
             <rect x="0" y="-10" width="10" height="10" fill={s.color} rx="2" opacity="0.85"/>
             <text x="14" y="-1" fontSize="9" fill="#94a3b8">{s.label}</text>
           </g>
@@ -57,14 +63,17 @@ function RevenueChart({ years, allData, type }) {
       </svg>
     );
   }
+
+  // Line chart
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{maxHeight:260}}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{maxHeight:280}}>
       {yTicks.map((v,i)=>(
         <g key={i}>
           <line x1={PAD.left} y1={PAD.top+yScale(v)} x2={W-PAD.right} y2={PAD.top+yScale(v)} stroke="#334155" strokeWidth="1" strokeDasharray="4,3"/>
           <text x={PAD.left-6} y={PAD.top+yScale(v)+4} textAnchor="end" fontSize="9" fill="#64748b">${v>=1000?(v/1000).toFixed(0)+'k':v.toFixed(0)}</text>
         </g>
       ))}
+      <line x1={PAD.left} y1={chartBottom} x2={W-PAD.right} y2={chartBottom} stroke="#475569" strokeWidth="1"/>
       {series.map(s=>{
         const pts=data.map((d,i)=>`${xPos(i)},${PAD.top+yScale(d[s.key])}`).join(' ');
         return (
@@ -74,9 +83,11 @@ function RevenueChart({ years, allData, type }) {
           </g>
         );
       })}
-      {data.map((d,i)=><text key={d.year} x={xPos(i)} y={H-8} textAnchor="middle" fontSize="10" fill="#94a3b8">{d.year}</text>)}
+      {data.map((d,i)=>(
+        <text key={d.year} x={xPos(i)} y={chartBottom+14} textAnchor="middle" fontSize="11" fontWeight="500" fill="#94a3b8">{d.year}</text>
+      ))}
       {series.map((s,i)=>(
-        <g key={s.key} transform={`translate(${PAD.left+i*110},${H-2})`}>
+        <g key={s.key} transform={`translate(${PAD.left+i*110},${H-4})`}>
           <rect x="0" y="-10" width="10" height="10" fill={s.color} rx="2" opacity="0.85"/>
           <text x="14" y="-1" fontSize="9" fill="#94a3b8">{s.label}</text>
         </g>
@@ -179,6 +190,157 @@ function downloadPDF(months, allData, title) {
   w.document.close();
   w.focus();
   setTimeout(()=>{ w.print(); }, 400);
+}
+
+// ─── Year Card (collapsible) ──────────────────────────────────────────────────
+function YearCard({ year, ys, monthsInYear, allData, setMonth, setActiveTab }) {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div className="bg-slate-800/60 rounded-xl border border-slate-700/50 overflow-hidden">
+      {/* Clickable header */}
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-700/20 transition-colors text-left"
+      >
+        <div className="flex items-center gap-3">
+          <span className={`text-slate-400 text-base transition-transform duration-200 ${open ? 'rotate-180' : 'rotate-0'}`}>▾</span>
+          <div>
+            <h3 className="text-lg font-bold text-white">{year}</h3>
+            <p className="text-xs text-slate-500">{ys.monthCount} months recorded</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div onClick={e => e.stopPropagation()}>
+            <DownloadButtons months={monthsInYear} allData={allData} label={`${year}_Report`}/>
+          </div>
+          <div className="bg-blue-500/20 border border-blue-500/30 px-3 py-1.5 rounded-xl text-right">
+            <p className="text-blue-300 font-bold font-mono text-base">{formatUSD(ys.partnerShare)}</p>
+            <p className="text-blue-400 text-xs">your 25% share</p>
+          </div>
+        </div>
+      </button>
+
+      {/* Collapsible body */}
+      {open && (
+        <div className="px-5 pb-5 space-y-4 border-t border-slate-700/50 pt-4">
+          {/* Summary cards */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-slate-700/40 rounded-lg p-3">
+              <p className="text-xs text-slate-500 mb-0.5">Net Profit</p>
+              <p className={`text-sm font-bold font-mono ${ys.netProfit>=0?'text-green-400':'text-red-400'}`}>{formatUSD(ys.netProfit)}</p>
+            </div>
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+              <p className="text-xs text-blue-400 mb-0.5">Your 25% (USD)</p>
+              <p className="text-sm font-bold text-blue-300 font-mono">{formatUSD(ys.partnerShare)}</p>
+            </div>
+            <div className="bg-slate-700/40 rounded-lg p-3">
+              <p className="text-xs text-slate-500 mb-0.5">Approx. PKR</p>
+              <p className="text-sm font-bold text-slate-300 font-mono">{formatPKR(ys.partnerShare*280)}</p>
+            </div>
+          </div>
+
+          {/* Calculation Breakdown */}
+          <Collapsible title="📋 Calculation Breakdown" defaultOpen={false}>
+            <div className="space-y-2 text-sm">
+              {(()=>{
+                const totals=monthsInYear.reduce((acc,m)=>{
+                  const d=allData[m]; if(!d) return acc;
+                  const s=calculateSummary(d); if(!s) return acc;
+                  return {
+                    adsRevenue: acc.adsRevenue+s.adsRevenue,
+                    invalidDeduction: acc.invalidDeduction+s.invalidDeduction,
+                    subscriptionRev: acc.subscriptionRev+s.subscriptionRev,
+                    totalRevenue: acc.totalRevenue+s.totalRevenue,
+                    marketing: acc.marketing+s.marketing,
+                    server: acc.server+s.server,
+                    reviews: acc.reviews+s.reviews,
+                    tax: acc.tax+s.tax,
+                    other: acc.other+s.other,
+                    totalExpenses: acc.totalExpenses+s.totalExpenses,
+                    netProfit: acc.netProfit+s.netProfit,
+                    partnerShare: acc.partnerShare+s.partnerShare,
+                  };
+                },{adsRevenue:0,invalidDeduction:0,subscriptionRev:0,totalRevenue:0,marketing:0,server:0,reviews:0,tax:0,other:0,totalExpenses:0,netProfit:0,partnerShare:0});
+                return (
+                  <>
+                    <p className="text-xs text-slate-500 mb-2">Combined totals for all {ys.monthCount} months in {year}</p>
+                    {[
+                      {label:'Gross Ads Revenue', val:formatUSD(totals.adsRevenue), color:'text-slate-200', indent:false},
+                      {label:'− Invalid Traffic Deduction', val:`−${formatUSD(totals.invalidDeduction)}`, color:'text-red-400', indent:true},
+                      {label:'Subscription Revenue', val:`+${formatUSD(totals.subscriptionRev)}`, color:'text-slate-200', indent:false},
+                    ].map(r=>(
+                      <div key={r.label} className={`flex justify-between ${r.indent?'pl-4':''}`}>
+                        <span className="text-slate-400">{r.label}</span>
+                        <span className={`font-mono ${r.color}`}>{r.val}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between font-medium border-t border-slate-700/50 pt-2 mt-1">
+                      <span className="text-slate-300">Total Revenue</span>
+                      <span className="font-mono text-green-400">{formatUSD(totals.totalRevenue)}</span>
+                    </div>
+                    {[
+                      {label:'− Marketing', val:totals.marketing},
+                      {label:'− Server Cost', val:totals.server},
+                      {label:'− Paid Reviews', val:totals.reviews},
+                      {label:'− Tax', val:totals.tax},
+                      ...(totals.other>0?[{label:'− Other',val:totals.other}]:[]),
+                    ].map(r=>(
+                      <div key={r.label} className="flex justify-between pl-4">
+                        <span className="text-slate-500">{r.label}</span>
+                        <span className="font-mono text-red-400">−{formatUSD(r.val)}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between font-bold border-t border-slate-700/50 pt-2 mt-1">
+                      <span className="text-white">Net Profit</span>
+                      <span className={`font-mono ${totals.netProfit>=0?'text-green-400':'text-red-400'}`}>{formatUSD(totals.netProfit)}</span>
+                    </div>
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-2">
+                      <div className="flex justify-between">
+                        <span className="text-blue-300 font-semibold">Your Share (25%)</span>
+                        <span className="font-mono text-blue-300 font-bold">{formatUSD(totals.partnerShare)}</span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </Collapsible>
+
+          {/* Monthly table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs min-w-[340px]">
+              <thead>
+                <tr className="text-slate-500 border-b border-slate-700/40">
+                  <th className="pb-1.5 text-left font-medium px-2">Month</th>
+                  <th className="pb-1.5 text-right font-medium px-2 hidden sm:table-cell">Revenue</th>
+                  <th className="pb-1.5 text-right font-medium px-2 hidden sm:table-cell">Expenses</th>
+                  <th className="pb-1.5 text-right font-medium px-2">Net Profit</th>
+                  <th className="pb-1.5 text-right font-medium px-2">Your 25%</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monthsInYear.map(m=>{
+                  const d=allData[m]; if(!d) return null;
+                  const s=calculateSummary(d); if(!s) return null;
+                  return (
+                    <tr key={m} onClick={()=>{setMonth(m);setActiveTab('monthly');}}
+                      className="border-b border-slate-800/60 hover:bg-slate-700/30 cursor-pointer transition-colors">
+                      <td className="py-2 px-2 text-slate-300 whitespace-nowrap">{getMonthLabel(m)}</td>
+                      <td className="py-2 px-2 text-right text-slate-400 font-mono hidden sm:table-cell">{formatUSD(s.totalRevenue)}</td>
+                      <td className="py-2 px-2 text-right text-red-400 font-mono hidden sm:table-cell">{formatUSD(s.totalExpenses)}</td>
+                      <td className={`py-2 px-2 text-right font-mono font-semibold ${s.netProfit>=0?'text-green-400':'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
+                      <td className="py-2 px-2 text-right text-blue-300 font-mono font-semibold">{formatUSD(s.partnerShare)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── Download Button ────────────────────────────────────────────────────────────
@@ -499,138 +661,7 @@ export default function PartnerDashboard() {
                     const ys=calculateYearlySummary(year,allData); if(!ys) return null;
                     const monthsInYear=savedMonths.filter(m=>m.startsWith(year));
                     return (
-                      <div key={year} className="bg-slate-800/60 rounded-xl border border-slate-700/50 overflow-hidden">
-                        {/* Year header */}
-                        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/50">
-                          <div>
-                            <h3 className="text-lg font-bold text-white">{year}</h3>
-                            <p className="text-xs text-slate-500">{ys.monthCount} months recorded</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <DownloadButtons months={monthsInYear} allData={allData} label={`${year}_Report`}/>
-                            <div className="bg-blue-500/20 border border-blue-500/30 px-3 py-1.5 rounded-xl text-right">
-                              <p className="text-blue-300 font-bold font-mono text-base">{formatUSD(ys.partnerShare)}</p>
-                              <p className="text-blue-400 text-xs">your 25% share</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="p-5 space-y-4">
-                          {/* Summary cards */}
-                          <div className="grid grid-cols-3 gap-3">
-                            <div className="bg-slate-700/40 rounded-lg p-3">
-                              <p className="text-xs text-slate-500 mb-0.5">Net Profit</p>
-                              <p className={`text-sm font-bold font-mono ${ys.netProfit>=0?'text-green-400':'text-red-400'}`}>{formatUSD(ys.netProfit)}</p>
-                            </div>
-                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                              <p className="text-xs text-blue-400 mb-0.5">Your 25% (USD)</p>
-                              <p className="text-sm font-bold text-blue-300 font-mono">{formatUSD(ys.partnerShare)}</p>
-                            </div>
-                            <div className="bg-slate-700/40 rounded-lg p-3">
-                              <p className="text-xs text-slate-500 mb-0.5">Approx. PKR</p>
-                              <p className="text-sm font-bold text-slate-300 font-mono">{formatPKR(ys.partnerShare*280)}</p>
-                            </div>
-                          </div>
-
-                          {/* ── Collapsible Calculation Breakdown (yearly totals) ── */}
-                          <Collapsible title="📋 Calculation Breakdown" defaultOpen={false}>
-                            <div className="space-y-2 text-sm">
-                              {(()=>{
-                                const totals=monthsInYear.reduce((acc,m)=>{
-                                  const d=allData[m]; if(!d) return acc;
-                                  const s=calculateSummary(d); if(!s) return acc;
-                                  return {
-                                    adsRevenue: acc.adsRevenue+s.adsRevenue,
-                                    invalidDeduction: acc.invalidDeduction+s.invalidDeduction,
-                                    subscriptionRev: acc.subscriptionRev+s.subscriptionRev,
-                                    totalRevenue: acc.totalRevenue+s.totalRevenue,
-                                    marketing: acc.marketing+s.marketing,
-                                    server: acc.server+s.server,
-                                    reviews: acc.reviews+s.reviews,
-                                    tax: acc.tax+s.tax,
-                                    other: acc.other+s.other,
-                                    totalExpenses: acc.totalExpenses+s.totalExpenses,
-                                    netProfit: acc.netProfit+s.netProfit,
-                                    partnerShare: acc.partnerShare+s.partnerShare,
-                                  };
-                                },{adsRevenue:0,invalidDeduction:0,subscriptionRev:0,totalRevenue:0,marketing:0,server:0,reviews:0,tax:0,other:0,totalExpenses:0,netProfit:0,partnerShare:0});
-                                return (
-                                  <>
-                                    <p className="text-xs text-slate-500 mb-2">Combined totals for all {ys.monthCount} months in {year}</p>
-                                    {[
-                                      {label:'Gross Ads Revenue',          val:formatUSD(totals.adsRevenue),              color:'text-slate-200',indent:false},
-                                      {label:'− Invalid Traffic Deduction',val:`−${formatUSD(totals.invalidDeduction)}`,   color:'text-red-400',indent:true},
-                                      {label:'Subscription Revenue',       val:`+${formatUSD(totals.subscriptionRev)}`,    color:'text-slate-200',indent:false},
-                                    ].map(r=>(
-                                      <div key={r.label} className={`flex justify-between ${r.indent?'pl-4':''}`}>
-                                        <span className="text-slate-400">{r.label}</span>
-                                        <span className={`font-mono ${r.color}`}>{r.val}</span>
-                                      </div>
-                                    ))}
-                                    <div className="flex justify-between font-medium border-t border-slate-700/50 pt-2 mt-1">
-                                      <span className="text-slate-300">Total Revenue</span>
-                                      <span className="font-mono text-green-400">{formatUSD(totals.totalRevenue)}</span>
-                                    </div>
-                                    {[
-                                      {label:'− Marketing',    val:totals.marketing},
-                                      {label:'− Server Cost',  val:totals.server},
-                                      {label:'− Paid Reviews', val:totals.reviews},
-                                      {label:'− Tax',          val:totals.tax},
-                                      ...(totals.other>0?[{label:'− Other',val:totals.other}]:[]),
-                                    ].map(r=>(
-                                      <div key={r.label} className="flex justify-between pl-4">
-                                        <span className="text-slate-500">{r.label}</span>
-                                        <span className="font-mono text-red-400">−{formatUSD(r.val)}</span>
-                                      </div>
-                                    ))}
-                                    <div className="flex justify-between font-bold border-t border-slate-700/50 pt-2 mt-1">
-                                      <span className="text-white">Net Profit</span>
-                                      <span className={`font-mono ${totals.netProfit>=0?'text-green-400':'text-red-400'}`}>{formatUSD(totals.netProfit)}</span>
-                                    </div>
-                                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-2">
-                                      <div className="flex justify-between">
-                                        <span className="text-blue-300 font-semibold">Your Share (25%)</span>
-                                        <span className="font-mono text-blue-300 font-bold">{formatUSD(totals.partnerShare)}</span>
-                                      </div>
-                                    </div>
-                                  </>
-                                );
-                              })()}
-                            </div>
-                          </Collapsible>
-
-                          {/* Monthly breakdown table */}
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-xs">
-                              <thead>
-                                <tr className="text-slate-500 border-b border-slate-700/40">
-                                  <th className="pb-1.5 text-left font-medium px-2">Month</th>
-                                  <th className="pb-1.5 text-right font-medium px-2">Revenue</th>
-                                  <th className="pb-1.5 text-right font-medium px-2">Expenses</th>
-                                  <th className="pb-1.5 text-right font-medium px-2">Net Profit</th>
-                                  <th className="pb-1.5 text-right font-medium px-2">Your 25%</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {monthsInYear.map(m=>{
-                                  const d=allData[m]; if(!d) return null;
-                                  const s=calculateSummary(d); if(!s) return null;
-                                  return (
-                                    <tr key={m} onClick={()=>{setMonth(m);setActiveTab('monthly');}}
-                                      className="border-b border-slate-800/60 hover:bg-slate-700/30 cursor-pointer transition-colors">
-                                      <td className="py-2 px-2 text-slate-300">{getMonthLabel(m)}</td>
-                                      <td className="py-2 px-2 text-right text-slate-400 font-mono">{formatUSD(s.totalRevenue)}</td>
-                                      <td className="py-2 px-2 text-right text-red-400 font-mono">{formatUSD(s.totalExpenses)}</td>
-                                      <td className={`py-2 px-2 text-right font-mono font-semibold ${s.netProfit>=0?'text-green-400':'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
-                                      <td className="py-2 px-2 text-right text-blue-300 font-mono font-semibold">{formatUSD(s.partnerShare)}</td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
+                      <YearCard key={year} year={year} ys={ys} monthsInYear={monthsInYear} allData={allData} savedMonths={savedMonths} setMonth={setMonth} setActiveTab={setActiveTab}/>
                     );
                   })}
                 </>
