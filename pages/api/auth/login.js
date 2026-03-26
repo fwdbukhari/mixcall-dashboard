@@ -33,6 +33,12 @@ function getViewers() {
   return viewers;
 }
 
+function cookieOpts(maxAge) {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secure = isProduction ? '; Secure' : '';
+  return `Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
+}
+
 export default function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const { password } = req.body || {};
@@ -46,12 +52,13 @@ export default function handler(req, res) {
   }
 
   const maxAge = 7 * 24 * 60 * 60;
+  const opts = cookieOpts(maxAge);
 
   if (password === AP) {
     const adminName = process.env.ADMIN_NAME || 'Fawad';
     res.setHeader('Set-Cookie', [
-      `mc_role=admin; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`,
-      `mc_name=${encodeURIComponent(adminName)}; Path=/; SameSite=Strict; Max-Age=${maxAge}`,
+      `mc_role=admin; ${opts}`,
+      `mc_name=${encodeURIComponent(adminName)}; ${opts}`,
     ]);
     return res.status(200).json({ role: 'admin' });
   }
@@ -59,8 +66,8 @@ export default function handler(req, res) {
   const viewer = viewers.find(v => v.password === password);
   if (viewer) {
     res.setHeader('Set-Cookie', [
-      `mc_role=partner; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`,
-      `mc_name=${encodeURIComponent(viewer.name)}; Path=/; SameSite=Strict; Max-Age=${maxAge}`,
+      `mc_role=partner; ${opts}`,
+      `mc_name=${encodeURIComponent(viewer.name)}; ${opts}`,
     ]);
     return res.status(200).json({ role: 'partner', name: viewer.name });
   }
