@@ -40,17 +40,22 @@ export default function Login() {
 
   return (
     <>
-      <Head><title>MixCall Dashboard — Login</title></Head>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-violet-950 flex items-center justify-center p-4">
+      <Head>
+        <title>MixCall Dashboard — Login</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+
+      {/* data-login="true" prevents light-theme CSS from overriding text on this dark gradient page */}
+      <div data-login="true" className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-violet-950 flex items-center justify-center p-4">
 
         {/* Theme switcher — top right */}
-        <div className="absolute top-4 right-4 flex items-center gap-1 bg-slate-800/70 border border-slate-700/50 rounded-xl p-1">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1 bg-slate-800/70 border border-slate-700/50 rounded-xl p-1">
           {THEME_OPTIONS.map(opt => (
             <button
               key={opt.value}
               onClick={() => changeTheme(opt.value)}
               title={opt.label}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 theme === opt.value
                   ? 'bg-violet-600 text-white'
                   : 'text-slate-400 hover:text-white hover:bg-slate-700/60'
@@ -62,43 +67,45 @@ export default function Login() {
           ))}
         </div>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm px-0">
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500 to-violet-700 mb-4 shadow-2xl shadow-violet-500/40">
               <span className="text-4xl">📞</span>
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">MixCall</h1>
-            <p className="text-slate-400 mt-1 text-sm tracking-widest uppercase">Revenue Dashboard</p>
+            <h1 className="text-3xl font-bold tracking-tight" style={{color:'#ffffff'}}>MixCall</h1>
+            <p className="mt-1 text-sm tracking-widest uppercase" style={{color:'#94a3b8'}}>Revenue Dashboard</p>
           </div>
 
           {/* Card */}
-          <div className="bg-slate-800/80 backdrop-blur rounded-2xl p-7 shadow-2xl border border-slate-700/50">
-            <p className="text-slate-400 text-sm mb-5 text-center">Enter your password to continue</p>
+          <div className="bg-slate-800/80 backdrop-blur rounded-2xl p-6 sm:p-7 shadow-2xl border border-slate-700/50">
+            <p className="text-sm mb-5 text-center" style={{color:'#94a3b8'}}>Enter your password to continue</p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full px-4 py-3 bg-slate-700/80 border border-slate-600 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-base"
+                className="w-full px-4 py-3 bg-slate-700/80 border border-slate-600 rounded-xl placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-base"
+                style={{color:'#ffffff'}}
                 required
                 autoFocus
               />
               {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2.5 text-red-400 text-sm">
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2.5 text-sm" style={{color:'#f87171'}}>
                   {error}
                 </div>
               )}
               <button
                 type="submit"
                 disabled={loading || !password}
-                className="w-full py-3 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-500/20"
+                className="w-full py-3 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-500/20"
+                style={{color:'#ffffff'}}
               >
                 {loading ? 'Signing in…' : 'Enter Dashboard'}
               </button>
             </form>
-            <p className="text-slate-600 text-xs text-center mt-5">Confidential • MixCall Rev Dashboard v1.0</p>
+            <p className="text-xs text-center mt-5" style={{color:'#475569'}}>Confidential • MixCall Rev Dashboard v1.0</p>
           </div>
         </div>
       </div>

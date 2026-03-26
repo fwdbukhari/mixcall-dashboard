@@ -378,16 +378,16 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-slate-900 text-white">
         {/* Header */}
         <header className="bg-slate-800/80 backdrop-blur border-b border-slate-700/50 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-lg shadow-lg shadow-violet-500/30">📞</div>
-              <div>
-                <h1 className="text-base font-bold text-white leading-none">MixCall</h1>
-                <p className="text-xs text-slate-400 leading-none mt-0.5">Revenue Dashboard</p>
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-base sm:text-lg shadow-lg shadow-violet-500/30">📞</div>
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base font-bold text-white leading-none">MixCall</h1>
+                <p className="text-xs text-slate-400 leading-none mt-0.5 hidden xs:block">Revenue Dashboard</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {/* Tab switcher */}
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              {/* Tab switcher — desktop */}
               <div className="hidden sm:flex bg-slate-700/60 rounded-lg p-1 gap-1">
                 <button onClick={() => setActiveTab('entry')} className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${activeTab === 'entry' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'}`}>
                   📝 Data Entry
@@ -396,16 +396,16 @@ export default function AdminDashboard() {
                   📊 Yearly View
                 </button>
               </div>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 text-xs font-medium">
+              <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 text-xs font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>Admin
               </span>
               <ThemeToggle />
-              <button onClick={logout} className="px-3 py-1.5 text-slate-400 hover:text-white text-sm transition-colors">Sign Out</button>
+              <button onClick={logout} className="px-2 sm:px-3 py-1.5 text-slate-400 hover:text-white text-xs sm:text-sm transition-colors">Out</button>
             </div>
           </div>
         </header>
 
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
           {!kvReady && (
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 mb-4 flex gap-3 items-start">
               <span className="text-amber-400 mt-0.5">⚠️</span>
@@ -564,17 +564,17 @@ export default function AdminDashboard() {
 
               {/* Monthly History Table */}
               {savedMonths.length > 0 && (
-                <div className="mt-8">
+                <div className="mt-6 sm:mt-8">
                   <h3 className="text-base font-semibold text-white mb-4">📅 Monthly History ({savedMonths.length} months saved)</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+                    <table className="w-full text-sm min-w-[420px]">
                       <thead>
                         <tr className="text-left text-xs text-slate-500 border-b border-slate-700/50">
-                          <th className="pb-2 font-medium pr-4">Month</th>
-                          <th className="pb-2 font-medium pr-4 text-right">Revenue</th>
-                          <th className="pb-2 font-medium pr-4 text-right">Expenses</th>
-                          <th className="pb-2 font-medium pr-4 text-right">Net Profit</th>
-                          <th className="pb-2 font-medium pr-4 text-right">Your 75%</th>
+                          <th className="pb-2 font-medium pr-3">Month</th>
+                          <th className="pb-2 font-medium pr-3 text-right hidden sm:table-cell">Revenue</th>
+                          <th className="pb-2 font-medium pr-3 text-right hidden sm:table-cell">Expenses</th>
+                          <th className="pb-2 font-medium pr-3 text-right">Net Profit</th>
+                          <th className="pb-2 font-medium pr-3 text-right">Your 75%</th>
                           <th className="pb-2 font-medium text-right">Partner 25%</th>
                         </tr>
                       </thead>
@@ -585,11 +585,11 @@ export default function AdminDashboard() {
                           return (
                             <tr key={m} onClick={() => { setMonth(m); setActiveTab('entry'); }}
                               className={`border-b border-slate-800 hover:bg-slate-800/60 cursor-pointer transition-colors ${m === month && activeTab === 'entry' ? 'bg-slate-800/60' : ''}`}>
-                              <td className="py-2.5 pr-4 font-medium text-slate-300">{getMonthLabel(m)}</td>
-                              <td className="py-2.5 pr-4 text-right text-slate-300 font-mono">{formatUSD(s.totalRevenue)}</td>
-                              <td className="py-2.5 pr-4 text-right text-red-400 font-mono">{formatUSD(s.totalExpenses)}</td>
-                              <td className={`py-2.5 pr-4 text-right font-mono font-semibold ${s.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
-                              <td className="py-2.5 pr-4 text-right text-violet-300 font-mono">{formatUSD(s.adminShare)}</td>
+                              <td className="py-2.5 pr-3 font-medium text-slate-300 whitespace-nowrap">{getMonthLabel(m)}</td>
+                              <td className="py-2.5 pr-3 text-right text-slate-300 font-mono hidden sm:table-cell">{formatUSD(s.totalRevenue)}</td>
+                              <td className="py-2.5 pr-3 text-right text-red-400 font-mono hidden sm:table-cell">{formatUSD(s.totalExpenses)}</td>
+                              <td className={`py-2.5 pr-3 text-right font-mono font-semibold ${s.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
+                              <td className="py-2.5 pr-3 text-right text-violet-300 font-mono">{formatUSD(s.adminShare)}</td>
                               <td className="py-2.5 text-right text-blue-300 font-mono">{formatUSD(s.partnerShare)}</td>
                             </tr>
                           );

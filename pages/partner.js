@@ -255,32 +255,32 @@ export default function PartnerDashboard() {
 
         {/* Header */}
         <header className="bg-slate-800/80 backdrop-blur border-b border-slate-700/50 sticky top-0 z-10">
-          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-lg shadow-lg shadow-blue-500/30">📞</div>
-              <div>
-                <h1 className="text-base font-bold text-white leading-none">MixCall</h1>
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-base sm:text-lg shadow-lg shadow-blue-500/30">📞</div>
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base font-bold text-white leading-none">MixCall</h1>
                 <p className="text-xs text-slate-400 leading-none mt-0.5">Partner Portal</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               <div className="hidden sm:flex bg-slate-700/60 rounded-lg p-1 gap-1">
                 <button onClick={()=>setActiveTab('monthly')} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab==='monthly'?'bg-blue-600 text-white shadow':'text-slate-400 hover:text-white'}`}>📅 Monthly</button>
                 <button onClick={()=>setActiveTab('yearly')} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab==='yearly'?'bg-blue-600 text-white shadow':'text-slate-400 hover:text-white'}`}>📊 Yearly</button>
               </div>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-blue-300 text-xs font-medium">
+              <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-blue-300 text-xs font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>Partner · 25%
               </span>
               <ThemeToggle />
-              <button onClick={logout} className="px-3 py-1.5 text-slate-400 hover:text-white text-sm transition-colors">Sign Out</button>
+              <button onClick={logout} className="px-2 sm:px-3 py-1.5 text-slate-400 hover:text-white text-xs sm:text-sm transition-colors">Out</button>
             </div>
           </div>
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
 
           {/* Mobile tabs */}
-          <div className="flex sm:hidden bg-slate-700/60 rounded-lg p-1 gap-1 mb-5">
+          <div className="flex sm:hidden bg-slate-700/60 rounded-lg p-1 gap-1 mb-4 sm:mb-5">
             <button onClick={()=>setActiveTab('monthly')} className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab==='monthly'?'bg-blue-600 text-white':'text-slate-400'}`}>📅 Monthly</button>
             <button onClick={()=>setActiveTab('yearly')} className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab==='yearly'?'bg-blue-600 text-white':'text-slate-400'}`}>📊 Yearly</button>
           </div>
@@ -356,8 +356,8 @@ export default function PartnerDashboard() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-blue-400 text-sm font-medium mb-1">Your Share — 25% of Net Profit</p>
-                        <p className={`text-4xl font-bold font-mono mb-1 ${summary.partnerShare>=0?'text-blue-300':'text-red-400'}`}>{formatUSD(summary.partnerShare)}</p>
-                        <p className="text-xl text-slate-400 font-mono">{formatPKR(summary.partnerSharePKR)}</p>
+                        <p className={`text-3xl sm:text-4xl font-bold font-mono mb-1 ${summary.partnerShare>=0?'text-blue-300':'text-red-400'}`}>{formatUSD(summary.partnerShare)}</p>
+                        <p className="text-base sm:text-xl text-slate-400 font-mono">{formatPKR(summary.partnerSharePKR)}</p>
                         <p className="text-slate-500 text-xs mt-2">Rate: 1 USD = {summary.rate} PKR</p>
                       </div>
                       <DownloadButtons months={[month]} allData={allData} label={getMonthLabel(month).replace(' ','_')} />
@@ -430,14 +430,14 @@ export default function PartnerDashboard() {
               {savedMonths.length>0 && (
                 <Collapsible title="📅 Your Earnings History" defaultOpen={true}
                   action={<DownloadButtons months={savedMonths} allData={allData} label="All_Months"/>}>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <div className="overflow-x-auto -mx-2 px-2">
+                    <table className="w-full text-sm min-w-[280px]">
                       <thead>
                         <tr className="text-left text-xs text-slate-500 border-b border-slate-700/50">
                           <th className="pb-2 font-medium px-2">Month</th>
                           <th className="pb-2 font-medium px-2 text-right">Net Profit</th>
                           <th className="pb-2 font-medium px-2 text-right">Your 25%</th>
-                          <th className="pb-2 font-medium px-2 text-right">In PKR</th>
+                          <th className="pb-2 font-medium px-2 text-right hidden sm:table-cell">In PKR</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -447,10 +447,10 @@ export default function PartnerDashboard() {
                           return (
                             <tr key={m} onClick={()=>setMonth(m)}
                               className={`border-b border-slate-800 hover:bg-slate-700/30 cursor-pointer transition-colors ${m===month?'bg-slate-700/40':''}`}>
-                              <td className="py-2.5 px-2 font-medium text-slate-300">{getMonthLabel(m)}</td>
+                              <td className="py-2.5 px-2 font-medium text-slate-300 whitespace-nowrap">{getMonthLabel(m)}</td>
                               <td className={`py-2.5 px-2 text-right font-mono ${s.netProfit>=0?'text-green-400':'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
                               <td className="py-2.5 px-2 text-right text-blue-300 font-mono font-semibold">{formatUSD(s.partnerShare)}</td>
-                              <td className="py-2.5 px-2 text-right text-slate-500 font-mono">{formatPKR(s.partnerSharePKR)}</td>
+                              <td className="py-2.5 px-2 text-right text-slate-500 font-mono hidden sm:table-cell">{formatPKR(s.partnerSharePKR)}</td>
                             </tr>
                           );
                         })}
