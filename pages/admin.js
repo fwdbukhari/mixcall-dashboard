@@ -212,7 +212,7 @@ function MonthPicker({ month, setMonth, savedMonths }) {
           onChange={e => setMonth(e.target.value)}
           className="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
         >
-          {getAllMonthsRange().slice(0, 24).map(m => (
+          {getAllMonthsRange().map(m => (
             <option key={m} value={m}>{getMonthLabel(m)}</option>
           ))}
         </select>
@@ -289,6 +289,94 @@ function OtherExpenseRow({ item, rate, onNameChange, onAmountChange, onRemove })
   );
 }
 
+// ─── Admin Yearly Card — collapsible month table ────────────────────────────
+function AdminYearCard({ year, ys, monthsInYear, allData, month, setMonth, setActiveTab }) {
+  const [showMonths, setShowMonths] = useState(true);
+
+  return (
+    <div className="bg-slate-800/60 rounded-xl border border-slate-700/50 overflow-hidden">
+      {/* Header — always visible, click arrow to toggle months */}
+      <div className="flex items-center justify-between px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div>
+            <h3 className="text-lg font-bold text-white">{year}</h3>
+            <p className="text-xs text-slate-500">{ys.monthCount} of 12 months recorded</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className={`px-3 py-1 rounded-full text-sm font-bold font-mono ${ys.netProfit >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+            Net: {formatUSD(ys.netProfit)}
+          </div>
+        </div>
+      </div>
+
+      {/* Summary cards — always visible */}
+      <div className="px-5 pb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="bg-slate-700/40 rounded-lg p-3">
+            <p className="text-xs text-slate-500 mb-0.5">Total Revenue</p>
+            <p className="text-sm font-bold text-green-400 font-mono">{formatUSD(ys.totalRevenue)}</p>
+          </div>
+          <div className="bg-slate-700/40 rounded-lg p-3">
+            <p className="text-xs text-slate-500 mb-0.5">Total Expenses</p>
+            <p className="text-sm font-bold text-red-400 font-mono">{formatUSD(ys.totalExpenses)}</p>
+          </div>
+          <div className="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3">
+            <p className="text-xs text-violet-400 mb-0.5">Your Share (75%)</p>
+            <p className="text-sm font-bold text-violet-300 font-mono">{formatUSD(ys.adminShare)}</p>
+          </div>
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+            <p className="text-xs text-blue-400 mb-0.5">Partner Share (25%)</p>
+            <p className="text-sm font-bold text-blue-300 font-mono">{formatUSD(ys.partnerShare)}</p>
+          </div>
+        </div>
+
+        {/* Collapsible month rows toggle */}
+        <button
+          onClick={() => setShowMonths(v => !v)}
+          className="flex items-center gap-2 text-xs text-slate-400 hover:text-violet-300 transition-colors mb-2 font-medium"
+        >
+          <span className={`transition-transform duration-200 ${showMonths ? 'rotate-180' : 'rotate-0'}`}>▾</span>
+          {showMonths ? 'Hide monthly breakdown' : `Show ${monthsInYear.length} months`}
+        </button>
+
+        {/* Monthly breakdown table */}
+        {showMonths && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs min-w-[380px]">
+              <thead>
+                <tr className="text-slate-500 border-b border-slate-700/40">
+                  <th className="pb-1.5 text-left font-medium pr-3">Month</th>
+                  <th className="pb-1.5 text-right font-medium pr-3 hidden sm:table-cell">Revenue</th>
+                  <th className="pb-1.5 text-right font-medium pr-3 hidden sm:table-cell">Expenses</th>
+                  <th className="pb-1.5 text-right font-medium pr-3">Net Profit</th>
+                  <th className="pb-1.5 text-right font-medium">Partner 25%</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monthsInYear.map(m => {
+                  const d = allData[m]; if (!d) return null;
+                  const s = calculateSummary(d); if (!s) return null;
+                  return (
+                    <tr key={m} onClick={() => { setMonth(m); setActiveTab('entry'); }}
+                      className={`border-b border-slate-800/60 hover:bg-slate-700/30 cursor-pointer transition-colors ${m === month ? 'bg-slate-700/30' : ''}`}>
+                      <td className="py-2 pr-3 text-slate-300 whitespace-nowrap">{getMonthLabel(m)}</td>
+                      <td className="py-2 pr-3 text-right text-slate-400 font-mono hidden sm:table-cell">{formatUSD(s.totalRevenue)}</td>
+                      <td className="py-2 pr-3 text-right text-red-400 font-mono hidden sm:table-cell">{formatUSD(s.totalExpenses)}</td>
+                      <td className={`py-2 pr-3 text-right font-mono font-semibold ${s.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
+                      <td className="py-2 text-right text-blue-300 font-mono">{formatUSD(s.partnerShare)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [month, setMonth] = useState(getCurrentMonth());
@@ -300,6 +388,7 @@ export default function AdminDashboard() {
   const [kvReady, setKvReady] = useState(true);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('entry'); // 'entry' | 'yearly'
+  const [showAllHistory, setShowAllHistory] = useState(false);
 
   useEffect(() => {
     fetch('/api/data').then(r => r.json()).then(d => {
@@ -504,7 +593,7 @@ export default function AdminDashboard() {
 
                     <button onClick={handleSave} disabled={saving}
                       className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-violet-500/20 text-base">
-                      {saving ? 'Saving…' : saved ? '✓ Saved!' : `Save ${getMonthLabel(month)} Data`}
+                      {saving ? 'Saving…' : saved ? '✓ Saved!' : savedMonths.includes(month) ? `Update ${getMonthLabel(month)} Data` : `Save ${getMonthLabel(month)} Data`}
                     </button>
                   </div>
 
@@ -565,7 +654,17 @@ export default function AdminDashboard() {
               {/* Monthly History Table */}
               {savedMonths.length > 0 && (
                 <div className="mt-6 sm:mt-8">
-                  <h3 className="text-base font-semibold text-white mb-4">📅 Monthly History ({savedMonths.length} months saved)</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-base font-semibold text-white">📅 Monthly History ({savedMonths.length} months saved)</h3>
+                    {savedMonths.length > 5 && (
+                      <button
+                        onClick={() => setShowAllHistory(v => !v)}
+                        className="text-xs text-violet-400 hover:text-violet-300 font-medium transition-colors px-3 py-1 bg-violet-500/10 border border-violet-500/20 rounded-lg"
+                      >
+                        {showAllHistory ? '▲ Show Less' : `See All ${savedMonths.length} months`}
+                      </button>
+                    )}
+                  </div>
                   <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
                     <table className="w-full text-sm min-w-[420px]">
                       <thead>
@@ -579,7 +678,7 @@ export default function AdminDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {savedMonths.map(m => {
+                        {(showAllHistory ? savedMonths : savedMonths.slice(0, 5)).map(m => {
                           const d = allData[m]; if (!d) return null;
                           const s = calculateSummary(d); if (!s) return null;
                           return (
@@ -597,6 +696,14 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
+                  {savedMonths.length > 5 && !showAllHistory && (
+                    <button
+                      onClick={() => setShowAllHistory(true)}
+                      className="mt-3 w-full py-2 text-xs text-slate-400 hover:text-violet-300 border border-slate-700/50 rounded-lg hover:border-violet-500/30 transition-all"
+                    >
+                      + {savedMonths.length - 5} more months — click to see all
+                    </button>
+                  )}
                 </div>
               )}
             </>
@@ -620,65 +727,16 @@ export default function AdminDashboard() {
                   if (!ys) return null;
                   const monthsInYear = savedMonths.filter(m => m.startsWith(year));
                   return (
-                    <div key={year} className="bg-slate-800/60 rounded-xl p-5 border border-slate-700/50">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h3 className="text-lg font-bold text-white">{year}</h3>
-                          <p className="text-xs text-slate-500">{ys.monthCount} of 12 months recorded</p>
-                        </div>
-                        <div className={`px-3 py-1 rounded-full text-sm font-bold font-mono ${ys.netProfit >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                          {formatUSD(ys.netProfit)}
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                        <div className="bg-slate-700/40 rounded-lg p-3">
-                          <p className="text-xs text-slate-500 mb-0.5">Total Revenue</p>
-                          <p className="text-sm font-bold text-green-400 font-mono">{formatUSD(ys.totalRevenue)}</p>
-                        </div>
-                        <div className="bg-slate-700/40 rounded-lg p-3">
-                          <p className="text-xs text-slate-500 mb-0.5">Total Expenses</p>
-                          <p className="text-sm font-bold text-red-400 font-mono">{formatUSD(ys.totalExpenses)}</p>
-                        </div>
-                        <div className="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3">
-                          <p className="text-xs text-violet-400 mb-0.5">Your Share (75%)</p>
-                          <p className="text-sm font-bold text-violet-300 font-mono">{formatUSD(ys.adminShare)}</p>
-                        </div>
-                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                          <p className="text-xs text-blue-400 mb-0.5">Partner Share (25%)</p>
-                          <p className="text-sm font-bold text-blue-300 font-mono">{formatUSD(ys.partnerShare)}</p>
-                        </div>
-                      </div>
-                      {/* Monthly breakdown for this year */}
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="text-slate-500 border-b border-slate-700/40">
-                              <th className="pb-1.5 text-left font-medium pr-3">Month</th>
-                              <th className="pb-1.5 text-right font-medium pr-3">Revenue</th>
-                              <th className="pb-1.5 text-right font-medium pr-3">Expenses</th>
-                              <th className="pb-1.5 text-right font-medium pr-3">Net Profit</th>
-                              <th className="pb-1.5 text-right font-medium">Partner 25%</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {monthsInYear.map(m => {
-                              const d = allData[m]; if (!d) return null;
-                              const s = calculateSummary(d); if (!s) return null;
-                              return (
-                                <tr key={m} onClick={() => { setMonth(m); setActiveTab('entry'); }}
-                                  className="border-b border-slate-800/60 hover:bg-slate-700/30 cursor-pointer transition-colors">
-                                  <td className="py-2 pr-3 text-slate-300">{getMonthLabel(m)}</td>
-                                  <td className="py-2 pr-3 text-right text-slate-400 font-mono">{formatUSD(s.totalRevenue)}</td>
-                                  <td className="py-2 pr-3 text-right text-red-400 font-mono">{formatUSD(s.totalExpenses)}</td>
-                                  <td className={`py-2 pr-3 text-right font-mono font-semibold ${s.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formatUSD(s.netProfit)}</td>
-                                  <td className="py-2 text-right text-blue-300 font-mono">{formatUSD(s.partnerShare)}</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                    <AdminYearCard
+                      key={year}
+                      year={year}
+                      ys={ys}
+                      monthsInYear={monthsInYear}
+                      allData={allData}
+                      month={month}
+                      setMonth={setMonth}
+                      setActiveTab={setActiveTab}
+                    />
                   );
                 })
               )}
