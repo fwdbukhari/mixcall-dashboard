@@ -1,4 +1,838 @@
 {
-  "months": [],
-  "data": {}
+  "months": [
+    "2026-06",
+    "2026-05",
+    "2026-04",
+    "2026-03",
+    "2026-02",
+    "2026-01",
+    "2025-12",
+    "2025-11",
+    "2025-10",
+    "2025-09",
+    "2025-08",
+    "2025-07",
+    "2025-06",
+    "2025-05",
+    "2025-04",
+    "2025-03",
+    "2025-02",
+    "2025-01",
+    "2024-12",
+    "2024-11",
+    "2024-10",
+    "2024-09",
+    "2024-08",
+    "2024-07",
+    "2024-06",
+    "2024-05",
+    "2024-04",
+    "2024-03",
+    "2024-02",
+    "2024-01",
+    "2023-12",
+    "2023-11",
+    "2023-10",
+    "2023-09",
+    "2023-08",
+    "2023-07",
+    "2023-06",
+    "2023-05",
+    "2023-04",
+    "2023-03",
+    "2023-02"
+  ],
+  "data": {
+    "2026-06": {
+      "exchangeRate": "277.75",
+      "revenue": {
+        "adsRevenue": "686.90",
+        "invalidTrafficDeduction": ".15",
+        "subscriptionRevenue": "225.91"
+      },
+      "expenses": {
+        "marketingSpend": "980",
+        "serverCost": "",
+        "paidReviews": "3.3",
+        "tax": "34.30",
+        "otherExpenses": [
+          {
+            "name": "Device Inernet Packkage",
+            "amount": "2.0702"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-07-31T11:16:31.991Z"
+    },
+    "2026-05": {
+      "exchangeRate": "278.1",
+      "revenue": {
+        "adsRevenue": "753.91",
+        "invalidTrafficDeduction": "0.07",
+        "subscriptionRevenue": "180.57"
+      },
+      "expenses": {
+        "marketingSpend": "676",
+        "serverCost": "",
+        "paidReviews": "13.16",
+        "tax": "23.66",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0676"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-06-29T10:50:46.674Z"
+    },
+    "2026-04": {
+      "exchangeRate": "278.35",
+      "revenue": {
+        "adsRevenue": "894.95",
+        "invalidTrafficDeduction": "0.04",
+        "subscriptionRevenue": "109.85"
+      },
+      "expenses": {
+        "marketingSpend": "405.6",
+        "serverCost": "6.68",
+        "paidReviews": "0",
+        "tax": "14.20",
+        "otherExpenses": [
+          {
+            "name": "Device Internet Package",
+            "amount": "2.0657"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-06-01T12:06:14.616Z"
+    },
+    "2026-03": {
+      "exchangeRate": "278.75",
+      "revenue": {
+        "adsRevenue": "870.01",
+        "invalidTrafficDeduction": "1.04",
+        "subscriptionRevenue": "64.44"
+      },
+      "expenses": {
+        "marketingSpend": "95.45",
+        "serverCost": "4.74",
+        "paidReviews": "6.28",
+        "tax": "2.86",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0628"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-05-01T15:14:54.914Z"
+    },
+    "2026-02": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "984.91",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "76.52"
+      },
+      "expenses": {
+        "marketingSpend": "145.85",
+        "serverCost": "",
+        "paidReviews": "13.2979",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T15:02:49.535Z"
+    },
+    "2026-01": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "1245.51",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "82.11"
+      },
+      "expenses": {
+        "marketingSpend": "",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T15:00:07.827Z"
+    },
+    "2025-12": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "1522.35",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "76.78"
+      },
+      "expenses": {
+        "marketingSpend": "",
+        "serverCost": "",
+        "paidReviews": "12.9255",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:57:15.530Z"
+    },
+    "2025-11": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "1616.41",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "71.57"
+      },
+      "expenses": {
+        "marketingSpend": "",
+        "serverCost": "100",
+        "paidReviews": "24.9645",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Packge",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:55:53.845Z"
+    },
+    "2025-10": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "1652.12",
+        "invalidTrafficDeduction": "2.66",
+        "subscriptionRevenue": "122.66"
+      },
+      "expenses": {
+        "marketingSpend": "",
+        "serverCost": "",
+        "paidReviews": "7.9078",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:54:19.192Z"
+    },
+    "2025-09": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "1516.67",
+        "invalidTrafficDeduction": "29.38",
+        "subscriptionRevenue": "120.70"
+      },
+      "expenses": {
+        "marketingSpend": "",
+        "serverCost": "",
+        "paidReviews": "10.6702",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:52:10.845Z"
+    },
+    "2025-08": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "3502.27",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "147.17"
+      },
+      "expenses": {
+        "marketingSpend": "1115.9894",
+        "serverCost": "",
+        "paidReviews": "6.9504",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:49:56.606Z"
+    },
+    "2025-07": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "4587.81",
+        "invalidTrafficDeduction": "13.44",
+        "subscriptionRevenue": "135.52"
+      },
+      "expenses": {
+        "marketingSpend": "2096.26",
+        "serverCost": "",
+        "paidReviews": "2.5000",
+        "tax": "25.16",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0536"
+          },
+          {
+            "name": "Freelancer Registration",
+            "amount": "35.7143"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:47:44.515Z"
+    },
+    "2025-06": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "2917.26",
+        "invalidTrafficDeduction": "13.44",
+        "subscriptionRevenue": "102.20"
+      },
+      "expenses": {
+        "marketingSpend": "2072.46",
+        "serverCost": "500",
+        "paidReviews": "",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:44:20.613Z"
+    },
+    "2025-05": {
+      "exchangeRate": "282",
+      "revenue": {
+        "adsRevenue": "2688.82",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "148.66"
+      },
+      "expenses": {
+        "marketingSpend": "1403.7092",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0390"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:29:05.632Z"
+    },
+    "2025-04": {
+      "exchangeRate": "280",
+      "revenue": {
+        "adsRevenue": "2998.75",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "178.13"
+      },
+      "expenses": {
+        "marketingSpend": "979.81",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0536"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:26:44.829Z"
+    },
+    "2025-03": {
+      "exchangeRate": "280",
+      "revenue": {
+        "adsRevenue": "3298",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "153.13"
+      },
+      "expenses": {
+        "marketingSpend": "891.3786",
+        "serverCost": "",
+        "paidReviews": "74.6786",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Internet Package",
+            "amount": "2.0536"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:24:40.957Z"
+    },
+    "2025-02": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "4409.83",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "164.88"
+      },
+      "expenses": {
+        "marketingSpend": "1721.5806",
+        "serverCost": "",
+        "paidReviews": "163.7993",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Laptop & Internet Package",
+            "amount": "106.0036"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:22:32.039Z"
+    },
+    "2025-01": {
+      "exchangeRate": "278",
+      "revenue": {
+        "adsRevenue": "4703.33",
+        "invalidTrafficDeduction": "",
+        "subscriptionRevenue": "135.56"
+      },
+      "expenses": {
+        "marketingSpend": "1799.6655",
+        "serverCost": "",
+        "paidReviews": "110.7338",
+        "tax": "",
+        "otherExpenses": [
+          {
+            "name": "Device Internet Package",
+            "amount": "2.0683"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:20:41.812Z"
+    },
+    "2024-12": {
+      "exchangeRate": "278.6",
+      "revenue": {
+        "adsRevenue": "4710.06",
+        "invalidTrafficDeduction": "9.03",
+        "subscriptionRevenue": "136.64"
+      },
+      "expenses": {
+        "marketingSpend": "1688.1694",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "118.1730",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T14:00:15.547Z"
+    },
+    "2024-11": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "4171.85",
+        "invalidTrafficDeduction": "7.42",
+        "subscriptionRevenue": "127.01"
+      },
+      "expenses": {
+        "marketingSpend": "1601.9785",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "112.1326",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:59:22.711Z"
+    },
+    "2024-10": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "4741.93",
+        "invalidTrafficDeduction": "29.38",
+        "subscriptionRevenue": "121.13"
+      },
+      "expenses": {
+        "marketingSpend": "1638.5341",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "114.6953",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:58:39.593Z"
+    },
+    "2024-09": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "4388.70",
+        "invalidTrafficDeduction": "51.63",
+        "subscriptionRevenue": "104.33"
+      },
+      "expenses": {
+        "marketingSpend": "1647.8315",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "115.3477",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:57:56.848Z"
+    },
+    "2024-08": {
+      "exchangeRate": "278",
+      "revenue": {
+        "adsRevenue": "3954.74",
+        "invalidTrafficDeduction": "50.78",
+        "subscriptionRevenue": "99.1"
+      },
+      "expenses": {
+        "marketingSpend": "1610.8022",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "112.7518",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:56:57.539Z"
+    },
+    "2024-07": {
+      "exchangeRate": "278",
+      "revenue": {
+        "adsRevenue": "3801.90",
+        "invalidTrafficDeduction": "60.14",
+        "subscriptionRevenue": "103.42"
+      },
+      "expenses": {
+        "marketingSpend": "1238.7338",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "86.7086",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:56:00.882Z"
+    },
+    "2024-06": {
+      "exchangeRate": "278",
+      "revenue": {
+        "adsRevenue": "3710.39",
+        "invalidTrafficDeduction": "18.84",
+        "subscriptionRevenue": "56.68"
+      },
+      "expenses": {
+        "marketingSpend": "1266.3237",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "88.6403",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:54:43.421Z"
+    },
+    "2024-05": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "3133.76",
+        "invalidTrafficDeduction": "15.93",
+        "subscriptionRevenue": "52.65"
+      },
+      "expenses": {
+        "marketingSpend": "1162.4480",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "81.3692",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:52:02.718Z"
+    },
+    "2024-04": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "2650.91",
+        "invalidTrafficDeduction": "13.46",
+        "subscriptionRevenue": "41.95"
+      },
+      "expenses": {
+        "marketingSpend": "1038.1935",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "72.6703",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:50:56.737Z"
+    },
+    "2024-03": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "2091.19",
+        "invalidTrafficDeduction": "10.58",
+        "subscriptionRevenue": "25.46"
+      },
+      "expenses": {
+        "marketingSpend": "1035.1900",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "72.4624",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:48:53.362Z"
+    },
+    "2024-02": {
+      "exchangeRate": "279",
+      "revenue": {
+        "adsRevenue": "1647.08",
+        "invalidTrafficDeduction": "8.38",
+        "subscriptionRevenue": "29.26"
+      },
+      "expenses": {
+        "marketingSpend": "1192.1004",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "83.4444",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:47:56.654Z"
+    },
+    "2024-01": {
+      "exchangeRate": "280",
+      "revenue": {
+        "adsRevenue": "3492",
+        "invalidTrafficDeduction": "17.69",
+        "subscriptionRevenue": "45.62"
+      },
+      "expenses": {
+        "marketingSpend": "1350.5107",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "94.5357",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:46:03.494Z"
+    },
+    "2023-12": {
+      "exchangeRate": "275",
+      "revenue": {
+        "adsRevenue": "3872",
+        "invalidTrafficDeduction": "19.49",
+        "subscriptionRevenue": "26.17"
+      },
+      "expenses": {
+        "marketingSpend": "1382.4764",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "96.7745",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:33:21.040Z"
+    },
+    "2023-11": {
+      "exchangeRate": "277",
+      "revenue": {
+        "adsRevenue": "3078.20",
+        "invalidTrafficDeduction": "15.51",
+        "subscriptionRevenue": "23.73"
+      },
+      "expenses": {
+        "marketingSpend": "1011.6318",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "96.0866",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:31:49.377Z"
+    },
+    "2023-10": {
+      "exchangeRate": "284",
+      "revenue": {
+        "adsRevenue": "3662.10",
+        "invalidTrafficDeduction": "18.31",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "1317.1127",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "92.1972",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:19:09.701Z"
+    },
+    "2023-09": {
+      "exchangeRate": "279.45",
+      "revenue": {
+        "adsRevenue": "3346.10",
+        "invalidTrafficDeduction": "16.73",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "1286.8527",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "90.0805",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:18:10.230Z"
+    },
+    "2023-08": {
+      "exchangeRate": "288.75",
+      "revenue": {
+        "adsRevenue": "2142.70",
+        "invalidTrafficDeduction": "10.71",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "871.3108",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "60.9905",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T13:17:09.552Z"
+    },
+    "2023-07": {
+      "exchangeRate": "298.95",
+      "revenue": {
+        "adsRevenue": "2487.60",
+        "invalidTrafficDeduction": "12.44",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "1108.94",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "77.63",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T12:56:42.629Z"
+    },
+    "2023-06": {
+      "exchangeRate": "286.9",
+      "revenue": {
+        "adsRevenue": "3098.70",
+        "invalidTrafficDeduction": "15.49",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "1201.22",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "84.09",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T12:42:08.820Z"
+    },
+    "2023-05": {
+      "exchangeRate": "286.25",
+      "revenue": {
+        "adsRevenue": "3272.40",
+        "invalidTrafficDeduction": "16.36",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "478.92",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "33.53",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T12:40:17.822Z"
+    },
+    "2023-04": {
+      "exchangeRate": "285.5",
+      "revenue": {
+        "adsRevenue": "3297.80",
+        "invalidTrafficDeduction": "16.49",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "640.11",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "44.81",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T12:34:18.675Z"
+    },
+    "2023-03": {
+      "exchangeRate": "283.4",
+      "revenue": {
+        "adsRevenue": "3216.20",
+        "invalidTrafficDeduction": "16.08",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "224.92",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "15.75",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T12:32:20.808Z"
+    },
+    "2023-02": {
+      "exchangeRate": "281.5",
+      "revenue": {
+        "adsRevenue": "3579.50",
+        "invalidTrafficDeduction": "17.90",
+        "subscriptionRevenue": "0"
+      },
+      "expenses": {
+        "marketingSpend": "4.91",
+        "serverCost": "0",
+        "paidReviews": "0",
+        "tax": "0.32",
+        "otherExpenses": []
+      },
+      "notes": "",
+      "updatedAt": "2026-03-25T11:19:00.151Z"
+    }
+  }
 }
