@@ -1,6 +1,6 @@
-# 📞 MixCall Revenue Dashboard
+# MixCall Revenue Dashboard
 
-A private monthly revenue tracking dashboard for the MixCall Android app — built with Next.js and deployed on Vercel. Supports two roles: Admin (full access) and Partner (read-only 25% share view).
+A private monthly revenue tracking dashboard for the MixCall Android app — built with Next.js and deployed on Vercel. Supports multiple user roles: Admin (full access), Partner (read-only 25% share view), and optional extra Viewers.
 
 🌐 **Live:** [mixcall-dashboard.vercel.app](https://mixcall-dashboard.vercel.app)
 
@@ -8,19 +8,21 @@ A private monthly revenue tracking dashboard for the MixCall Android app — bui
 
 ## 👥 User Roles
 
-| Role | Access |
-|---|---|
-| **Admin (Fawad)** | Enter & update monthly data, view full breakdown, historical data entry from Feb 2023 |
-| **Partner (Zahid)** | Read-only view of monthly/yearly profit & 25% share |
+| Role | User | Access |
+|---|---|---|
+| **Admin** | Fawad | Enter & update monthly data, full breakdown, all history |
+| **Partner** | Zahid | Read-only — monthly/yearly profit & 25% share |
+| **Viewer** | Shahid Khan + others | Same as Partner — read-only view |
 
 ---
 
 ## ✨ Features
 
 ### 🔐 Login & Security
-- Password-only login — two separate passwords (Admin & Partner)
+- Password-only login — separate passwords per user
+- Username shown in header after login (pulled from session cookie)
 - Cookie-based session (7-day), route protection via Next.js middleware
-- Login page always stays dark regardless of theme choice
+- Login page always stays dark regardless of theme
 
 ### 🎨 Themes
 - **Dark** — default slate/violet dark mode
@@ -30,73 +32,66 @@ A private monthly revenue tracking dashboard for the MixCall Android app — bui
 
 ### 📅 Admin Portal
 - **Data Entry** — enter monthly revenue & expenses with exchange rate
-- **Save vs Update** — button dynamically shows "Save" for new months, "Update" for existing
-- **PKR / USD toggle** on all expense fields — type in PKR and it auto-converts to USD using the current exchange rate with a live preview hint
+- **Save vs Update** — button shows "Save" for new months, "Update" for existing
+- **PKR / USD toggle** on all expense fields with auto-conversion using that month's rate
 - **Revenue fields:** Gross Ads Revenue, Invalid Traffic Deduction, Subscription Revenue
-- **Expense fields:** Marketing Spend, Server Cost, Paid Reviews, Tax, + unlimited custom "Other Expenses"
-- **Live Summary** — auto-calculates Net Profit, Your 75%, Partner 25% in both USD and PKR as you type
-- **Historical Data Entry** — access any month from February 2023 to present via "📅 All Months" picker. Months with saved data shown in green
-- **Month Selector** — full dropdown covering all months from Feb 2023 to now
-- **Monthly History** — shows 5 most recent months by default with "See All" toggle
-- **Yearly View** — annual totals with collapsible month-by-month breakdown per year. Net profit shown in card header
-- **Notes** — optional admin notes per month (visible to partner)
+- **Expense fields:** Marketing Spend, Server Cost, Paid Reviews, Tax + unlimited custom expenses
+- **Live Summary** — auto-calculates Net Profit, 75% / 25% split in USD and PKR as you type
+- **Month picker** — full range from February 2023 to present. Saved months highlighted in green
+- **Monthly History** — 5 most recent months by default with "See All" toggle
+- **Yearly View** — annual totals with collapsible month-by-month breakdown, net profit in card header
 
 ### 📊 Partner Portal
-- **Monthly View** — hero card showing 25% share in USD + PKR for selected month
-- **Historical picker** — navigate any saved month from Feb 2023 onwards (only months with data are clickable)
-- **Collapsible Calculation Breakdown** — full revenue → expenses → net profit → 25% breakdown, toggle open/close
+- **Monthly View** — hero card showing 25% share in USD + PKR
+- **Historical picker** — navigate any saved month (only months with data are clickable)
+- **Collapsible Calculation Breakdown** — full revenue → expenses → net profit → 25% breakdown
 - **Stats row** — Total Revenue, Total Expenses, Net Profit, Your Share (25%)
 - **Earnings History** — full monthly earnings table
-- **Yearly View** — annual totals with collapsible year cards (▾ toggle), each showing net profit in header
-- **Revenue Overview Chart** — bar or line chart showing Revenue vs Expenses vs Your 25% across all years, with year labels properly aligned below baseline
-- **Download Reports** — CSV (opens in Excel/Sheets) or PDF/Print format, available per month, per year, or all months
+- **Yearly View** — annual totals with collapsible year cards
+- **Revenue Overview Chart** — Bar/Line toggle showing Revenue vs Expenses vs Partner 25%
+- **Download Reports** — CSV or PDF, per month, per year, or all months
 
 ### 💱 Currency
-- All data stored and reported in **USD**
-- PKR equivalent shown alongside USD everywhere using the monthly exchange rate
-- Admin can input expenses in either USD or PKR — auto-converts using that month's rate
+- All data stored in **USD**
+- PKR equivalent shown alongside USD using the monthly exchange rate
+- Admin can input expenses in USD or PKR — auto-converts on save
 
 ### 📱 Mobile Responsive
 - Compact headers on small screens
 - Tables scroll horizontally, secondary columns hidden on mobile
-- Theme toggle is click-based (not hover) for touch screens
-- Viewport meta tag prevents iOS/Android zoom on input fields
+- Theme toggle is click-based for touch screens
 
 ---
 
 ## 🔑 Login Credentials
 
-| Role | Vercel Env Var | Description |
+Stored in Vercel Environment Variables — never in the codebase.
+
+| Role | Env Var | Notes |
 |---|---|---|
-| Admin | `ADMIN_PASSWORD` | Full access — enter and edit data |
-| Partner | `ZAHID_PASSWORD` | Read-only — view 25% share |
-| Extra viewers | `VIEWER_USERS` | Add multiple read-only users |
+| Admin | `ADMIN_PASSWORD` | Full access |
+| Partner (Zahid) | `ZAHID_PASSWORD` | Read-only |
+| Extra Viewers | `VIEWER_USERS` | Format: `Name:Password,Name2:Password2` |
+| GitHub Token | `GITHUB_TOKEN` | Used by storage layer to write data |
 
 ### Adding Extra Viewers
-Set `VIEWER_USERS` in Vercel Environment Variables:
+Set `VIEWER_USERS` in Vercel → Environment Variables:
 ```
-Name1:Password1,Name2:Password2,Name3:Password3
+Shahid:Shahid@2424,Ahmed:Ahmed@123
 ```
-Example: `Ahmed:Ahmed@123,Sara:Sara@456`
+Then redeploy for changes to take effect.
 
 ---
 
-## 💰 Revenue Parameters
+## 💰 Revenue Split
 
-### Revenue (in USD)
-- Gross Ads Revenue (AdMob / ad network)
-- Invalid Traffic Deduction
-- Subscription Revenue (Google Play)
+| Stakeholder | Share |
+|---|---|
+| Admin (Fawad) | 75% of Net Profit |
+| Partner (Zahid) | 25% of Net Profit |
 
-### Expenses (USD or PKR input)
-- Marketing Spend
-- Server Cost
-- Paid Reviews
-- Tax
-- Other Custom Expenses (unlimited, named)
-
-### Auto-Calculated
-| Field | Formula |
+### Formula
+| Field | Calculation |
 |---|---|
 | Net Ads Revenue | Gross Ads Revenue − Invalid Traffic Deduction |
 | Total Revenue | Net Ads Revenue + Subscription Revenue |
@@ -109,15 +104,14 @@ Example: `Ahmed:Ahmed@123,Sara:Sara@456`
 
 ## 🗄️ Data Storage
 
-Uses **Upstash Redis** (via Vercel Marketplace) for persistent monthly data storage.
+All revenue data is stored as a **JSON file in this GitHub repository** at `data/revenue.json`.
 
-Setup: Vercel Dashboard → Storage → Create Database → Upstash Redis → Connect to project
+- **Reads:** GitHub Contents API (always fresh, server-side)
+- **Writes:** GitHub Contents API — each save creates a commit to `data/revenue.json`
+- **Permanent:** Data lives in the repo forever — no expiry, no database to maintain
+- **Required env var:** `GITHUB_TOKEN` (with `repo` scope)
 
-Environment variables auto-populated by Vercel on connection:
-- `KV_REST_API_URL`
-- `KV_REST_API_TOKEN`
-
-Without Upstash connected, data is stored in-memory and resets on server restart.
+> This approach replaces the previous Upstash Redis setup and is ideal for low-frequency usage (monthly updates). Data is committed to the repo on every save.
 
 ---
 
@@ -125,10 +119,10 @@ Without Upstash connected, data is stored in-memory and resets on server restart
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 14 (Pages Router) |
+| Framework | Next.js 14.2.35 (Pages Router) |
 | Styling | Tailwind CSS |
-| Database | Upstash Redis (via @upstash/redis) |
-| Hosting | Vercel |
+| Data Storage | GitHub JSON (`data/revenue.json` via GitHub API) |
+| Hosting | Vercel (Free plan — repo must stay public) |
 | Auth | Cookie-based sessions + Next.js middleware |
 | Charts | Pure SVG (no external chart library) |
 
@@ -138,26 +132,31 @@ Without Upstash connected, data is stored in-memory and resets on server restart
 
 ```
 mixcall-dashboard/
+├── data/
+│   └── revenue.json          # All revenue data (committed on every save)
 ├── pages/
-│   ├── index.js            # Login page with theme switcher
-│   ├── admin.js            # Admin dashboard (data entry + yearly view)
-│   ├── partner.js          # Partner dashboard (read-only)
+│   ├── index.js              # Login page
+│   ├── admin.js              # Admin portal
+│   ├── partner.js            # Partner portal
 │   └── api/
 │       ├── auth/
-│       │   ├── login.js    # Login API — supports multiple viewer accounts
-│       │   └── logout.js   # Logout + clear cookie
+│       │   ├── login.js      # Login — sets mc_role + mc_name cookies
+│       │   └── logout.js     # Logout — clears both cookies
 │       └── data/
-│           ├── index.js    # List all saved months
-│           └── [month].js  # GET / POST monthly data
-├── components/
-│   └── ThemeToggle.js      # Dark / Light / System theme switcher
+│           ├── index.js      # List all saved months
+│           └── [month].js    # GET / POST monthly data
 ├── lib/
-│   ├── calculations.js     # Revenue math, formatting, month range (Feb 2023–now)
-│   ├── storage.js          # Upstash Redis storage layer with in-memory fallback
-│   └── useTheme.js         # Theme hook with localStorage persistence
+│   ├── calculations.js       # Revenue math, formatting, month range
+│   ├── storage.js            # GitHub JSON storage layer
+│   └── useTheme.js           # Theme hook (dark/light/system)
+├── components/
+│   └── ThemeToggle.js        # Theme switcher component
+├── public/
+│   ├── mixcall-icon.png      # App icon (used in header + login)
+│   └── favicon.png           # Browser tab icon
 ├── styles/
-│   └── globals.css         # Tailwind + light theme CSS overrides
-└── middleware.js            # Route protection for /admin and /partner
+│   └── globals.css           # Tailwind + light theme overrides
+└── middleware.js             # Route protection for /admin and /partner
 ```
 
 ---
@@ -167,20 +166,27 @@ mixcall-dashboard/
 | Variable | Required | Description |
 |---|---|---|
 | `ADMIN_PASSWORD` | ✅ Yes | Admin login password |
-| `ZAHID_PASSWORD` | ✅ Yes | Partner (Zahid) login password |
-| `VIEWER_USERS` | ➕ Optional | Extra read-only viewers: `Name:Pass,Name2:Pass2` |
-| `KV_REST_API_URL` | 🔄 Auto | Set automatically by Vercel when Upstash is connected |
-| `KV_REST_API_TOKEN` | 🔄 Auto | Set automatically by Vercel when Upstash is connected |
+| `ZAHID_PASSWORD` | ✅ Yes | Partner login password |
+| `VIEWER_USERS` | ➕ Optional | Extra viewers: `Name:Pass,Name2:Pass2` |
+| `GITHUB_TOKEN` | ✅ Yes | GitHub Personal Access Token (repo scope) for writing data |
+
+> ⚠️ `GITHUB_TOKEN` expires based on how it was created. If data saves stop working, regenerate the token at [github.com/settings/tokens](https://github.com/settings/tokens) and update the Vercel env var.
 
 ---
 
 ## 🔄 Deployment
 
-Auto-deploys to Vercel on every push to the `main` branch via GitHub integration.
+Auto-deploys to Vercel on every push to `main` via GitHub integration.
 
-Manual deploy: push any commit to `main` → Vercel picks it up automatically.
+> ⚠️ The GitHub repo must remain **public** for Vercel Free plan auto-deploy to work.
 
 ---
 
-*Confidential — MixCall Internal Use Only*  
-*MixCall Revenue Dashboard v1.0 — Built March 2026*
+## 📅 Data History
+
+Revenue data tracked from **February 2023** onwards.
+
+---
+
+*Confidential — MixCall Internal Use Only*
+*MixCall Revenue Dashboard v2.0 — Updated September 2026*
