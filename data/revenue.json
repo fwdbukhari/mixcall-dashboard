@@ -1,5 +1,6 @@
 {
   "months": [
+    "2026-08",
     "2026-07",
     "2026-06",
     "2026-05",
@@ -860,6 +861,28 @@
       },
       "notes": "",
       "updatedAt": "2026-09-01T09:43:35.542Z"
+    },
+    "2026-08": {
+      "exchangeRate": "277.05",
+      "revenue": {
+        "adsRevenue": "862.92",
+        "invalidTrafficDeduction": "0.16",
+        "subscriptionRevenue": "472.28"
+      },
+      "expenses": {
+        "marketingSpend": "545.93",
+        "serverCost": "",
+        "paidReviews": "",
+        "tax": "19.11",
+        "otherExpenses": [
+          {
+            "name": "Internet Monthly Package",
+            "amount": "2.0754"
+          }
+        ]
+      },
+      "notes": "",
+      "updatedAt": "2026-10-02T07:09:11.329Z"
     }
   }
 }
